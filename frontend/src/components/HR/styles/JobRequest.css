@@ -1,0 +1,190 @@
+.job-request-card {
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+}
+
+.view-details-container {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.hover-button {
+  background-color: transparent;
+  border: none;
+  color: inherit;
+  transition: all 0.3s ease;
+}
+
+.hover-button .fa-times {
+  color: red;
+}
+
+.hover-button .fa-check {
+  color: green;
+}
+
+.hover-button:hover {
+  background-color: currentColor;
+  color: white;
+}
+
+.job-request-card-content {
+  padding: 1.5rem;
+}
+
+.job-request-card h3 {
+  color: #2c3e50;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.job-request-card p {
+  color: #6c757d;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  color: #495057;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+}
+
+.card-hover-buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: none;
+  gap: 5px;
+}
+
+.job-request-card:hover .card-hover-buttons {
+  display: flex;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  color: #495057;
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  outline: none;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  color: white;
+}
+
+.btn-danger {
+  background: linear-gradient(45deg, #dc3545, #c82333);
+  color: white;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.detail-card {
+  border-radius: 0.25rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.detail-card .card-body {
+  padding: 1.5rem;
+}
+
+.detail-card .card-title {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.detail-card .form-group {
+  margin-bottom: 1rem;
+}
+
+.detail-card .form-label {
+  font-weight: 500;
+}
+
+.detail-card .form-control,
+.detail-card .form-select {
+  padding: 0.75rem;
+}
+
+.detail-card .btn {
+  padding: 0.75rem 1.5rem;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-container .form-group {
+  flex: 1;
+}
+
+.detail-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.thin-button {
+  width: 200px; /* Adjust the width to make the buttons thinner */
+  margin: 0 auto; /* Center the buttons */
+}

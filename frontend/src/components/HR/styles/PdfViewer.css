@@ -1,0 +1,26 @@
+.pdf-viewer-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.pdf-viewer {
+  flex: 1;
+  width: 100%;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+}
+
+.pdf-container {
+  height: 100%;
+  overflow: auto;
+}
+
+.go-back-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+}

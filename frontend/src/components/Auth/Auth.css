@@ -1,0 +1,138 @@
+.auth-container {
+  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+  min-height: 100vh;
+}
+
+.step-indicator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.step-indicator::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #e9ecef;
+  z-index: 1;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.step.active .step-number {
+  background: #007bff;
+  border-color: #007bff;
+  color: #fff;
+}
+
+.step-label {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #6c757d;
+  transition: all 0.3s ease;
+}
+
+.step.active .step-label {
+  color: #007bff;
+  font-weight: 600;
+}
+
+.profile-preview {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+}
+
+.card {
+  border: none;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  border-radius: 1rem;
+}
+
+.form-control {
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+}
+
+.btn-primary {
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(15, 32, 39, 0.4);
+}
+
+.form-label {
+  font-weight: 500;
+  color: #0f2027;
+}
+
+.card-body {
+  padding: 2.5rem !important;
+}
+
+.alert {
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.carrier-select {
+  background-repeat: no-repeat;
+  background-position: 8px center;
+  background-size: 24px;
+  padding-left: 40px;
+}
+
+.carrier-select option {
+  padding-left: 40px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+}
+
+/* Individual carrier options */
+.mobilis-option {
+  background: url("../../assets/carriers/mobilis.png") no-repeat 8px center;
+  background-size: 24px;
+}
+
+.djezzy-option {
+  background: url("../../assets/carriers/djezzy.png") no-repeat 8px center;
+  background-size: 24px;
+}
+
+.ooredoo-option {
+  background: url("../../assets/carriers/ooredoo.png") no-repeat 8px center;
+  background-size: 24px;
+}

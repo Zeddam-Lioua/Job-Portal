@@ -1,0 +1,134 @@
+.job-application {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.job-application h2 {
+  margin-bottom: 20px;
+}
+
+.job-application .error {
+  color: red;
+}
+
+.job-application .success {
+  color: green;
+}
+
+.job-application form {
+  display: flex;
+  flex-direction: column;
+}
+
+.job-application form div {
+  margin-bottom: 15px;
+}
+
+.job-application label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.job-application input[type="text"],
+.job-application input[type="email"],
+.job-application input[type="file"] {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.job-application button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.job-application button:hover {
+  background-color: #0056b3;
+}
+
+/* Job List Styles */
+/* Public.css - Enhanced styles for Job List and CV submission form */
+
+/* Job List Styles */
+/* Public.css - Enhanced styles for Job List and CV submission form */
+
+.public-page {
+  padding: 20px;
+  text-align: center;
+}
+
+.public-page h1 {
+  margin-bottom: 20px;
+}
+
+.public-page p {
+  margin-bottom: 20px;
+}
+
+.public-page a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.public-page a:hover {
+  text-decoration: underline;
+}
+
+.job-list {
+  margin: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.job-list h2 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.job-list-items {
+  list-style-type: none;
+  padding: 0;
+}
+
+.job-item {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.job-item:last-child {
+  border-bottom: none;
+}
+
+.job-title {
+  font-size: 18px;
+  color: #333;
+}
+
+.job-description {
+  font-size: 14px;
+  color: #666;
+}
+
+.apply-button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.apply-button:hover {
+  background-color: #0056b3;
+}

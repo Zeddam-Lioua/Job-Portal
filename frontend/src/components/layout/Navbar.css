@@ -1,0 +1,110 @@
+.modern-navbar {
+  background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 1rem 0;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.brand-text {
+  font-weight: 600;
+  font-size: 1.5rem;
+  transition: transform 0.3s ease;
+  background: linear-gradient(to right, #00c6ff, #0072ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-text:hover {
+  transform: translateY(-2px);
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-weight: 500;
+  padding: 0.5rem 1rem !important;
+  margin: 0 0.2rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link.active {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.btn-outline-light {
+  border-radius: 8px;
+  padding: 0.5rem 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-light:hover {
+  transform: translateY(-2px);
+}
+
+.nav-profile-pic {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s ease;
+  display: inline-block;
+  margin-right: 8px;
+}
+
+.nav-profile-pic:hover {
+  transform: scale(1.1);
+}
+
+.nav-profile-icon {
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.username {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  margin-left: 8px;
+}
+
+.user-profile-section {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  margin-left: 8px;
+}
+
+.logout-btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 991.98px) {
+  .nav-link {
+    margin: 0.5rem 0;
+  }
+
+  .btn-outline-light {
+    margin-top: 0.5rem;
+  }
+
+  .user-profile-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .username {
+    margin: 0.5rem 0;
+  }
+
+  .nav-profile-pic {
+    margin: 0 auto;
+  }
+}
