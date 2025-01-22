@@ -15,7 +15,12 @@ urlpatterns = [
     path('hr/job-posts/<int:pk>/', JobPostDetailView.as_view(), name='job-post-detail'),
     path('hr/resumes/<int:pk>/', ResumeDetailView.as_view(), name='resume-detail'),
     path('analytics-stats/', AnalyticsStatsView.as_view(), name='analytics-stats'),
+    path('schedule-interview/<int:resume_id>/', ScheduleInterviewView.as_view(), name='schedule-interview'),
+    path('schedule-interview/', ScheduleInterviewView.as_view(), name='schedule-interview'),
+    path('applicants/', ApplicantListView.as_view(), name='applicants'),
+
 
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
+    path('generate_agora_token/<str:channel_name>/', generate_agora_token, name='generate_agora_token'),
 ]

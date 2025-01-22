@@ -5,6 +5,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 import AuthProvider from "./context/AuthContext";
 import Navbar from "./components/layout/Navbar";
 import Login from "./components/Auth/Login";
@@ -18,6 +19,7 @@ import JobApplication from "./components/Public/JobApplication";
 import ResumeDetail from "./components/HR/ResumeDetail";
 import PdfViewer from "./components/HR/PdfViewer";
 import OTPVerification from "./components/Auth/OTPVerification";
+import InterviewRoom from "./components/Agora/InterviewRoom";
 
 const App = () => {
   return (
@@ -31,6 +33,14 @@ const App = () => {
           <Route path="/admin/login" element={<Login />} />
           <Route path="/admin/register" element={<Register />} />
           <Route path="/admin/verify-otp" element={<OTPVerification />} />
+          <Route
+            path="/admin/hr/dashboard/interview/:roomName"
+            element={
+              <PrivateRoute>
+                <InterviewRoom />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/admin/hr/dashboard/*"
             element={
@@ -50,6 +60,7 @@ const App = () => {
           <Route path="/apply/:id" element={<JobApplication />} />
           <Route path="/resume-detail/:id" element={<ResumeDetail />} />
           <Route path="/pdf-viewer" element={<PdfViewer />} />
+          <Route path="/interview/:roomName" element={<InterviewRoom />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>

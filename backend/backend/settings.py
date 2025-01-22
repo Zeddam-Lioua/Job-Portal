@@ -215,3 +215,5 @@ EMAIL_HOST_PASSWORD = 'pwan qhss xjph aolb'
 DEFAULT_FROM_EMAIL = 'liwaazeddam@gmail.com'
 EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = 20
+
+FRONTEND_URL = 'http://localhost:5173'

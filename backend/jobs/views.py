@@ -4,6 +4,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count, Avg, F
 
 from .models import JobRequest, JobPost, Resume
@@ -13,7 +14,12 @@ from users.models import CustomUser, OTPVerification
 from djoser.conf import settings as djoser_settings
 from django.conf import settings
 from django.core.mail import send_mail
+from django.urls import reverse
 import logging
+
+from agora_token_builder import RtcTokenBuilder
+import time
+from django.http import JsonResponse
 
 logger = logging.getLogger(__name__)
 
@@ -177,3 +183,52 @@ class AnalyticsStatsView(APIView):
         except Exception as e:
             print(f"Error: {e}")
             return Response({'error': str(e)}, status=500)
+
+
+class ScheduleInterviewView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            email = request.data.get('email')
+            meeting_date = request.data.get('meetingDate')
+            room_name = request.data.get('roomName')
+            user = CustomUser.objects.get(email=email)
+            meeting_link = f"{settings.FRONTEND_URL}/interview/{room_name}"
+            email_subject = "Interview Schedule"
+            email_body = f"Dear {user.first_name},\n\nYou have been scheduled for a remote interview on {meeting_date}. Please join the meeting using the following link:\n\n{meeting_link}\n\nBest regards,\nHR Team"
+            send_mail(
+                email_subject,
+                email_body,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
+            return Response({"message": "Interview scheduled and email sent successfully."}, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ApplicantListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        applicants = CustomUser.objects.filter(is_active=False, is_staff=False).values('email')
+        return Response(applicants, status=status.HTTP_200_OK)
+    
+
+def generate_agora_token(request, channel_name):
+    app_id = "0191d05e615549beb20676f14e80b476"
+    app_certificate = "c28e9798286c4f03861e9205261f359e"
+    uid = 0
+    role = 1
+    expiration_time = 3600
+    current_timestamp = int(time.time())
+    privilege_expired = current_timestamp + expiration_time
+
+    token = RtcTokenBuilder.buildTokenWithUid(
+        app_id, app_certificate, channel_name, uid, role, privilege_expired
+    )
+    
+    return JsonResponse({'token': token})

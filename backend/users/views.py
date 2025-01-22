@@ -7,13 +7,14 @@ from rest_framework.generics import GenericAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.utils import timezone
+
 from .models import OTPVerification, PhoneVerification, CustomUser
 from django.core.mail import send_mail
 from django.conf import settings
 import logging
-from backend.utils import SMSService
-from backend.utils import DevelopmentSMSService
 
+
+from backend.utils import DevelopmentSMSService
 
 logger = logging.getLogger(__name__)
 
@@ -271,3 +272,7 @@ class UserLogoutAPIView(GenericAPIView):
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status= status.HTTP_400_BAD_REQUEST)
+
+
+
+
