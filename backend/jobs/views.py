@@ -17,7 +17,7 @@ from django.core.mail import send_mail
 from django.urls import reverse
 import logging
 
-from agora_token_builder import RtcTokenBuilder
+from agora_token_builder import RtcTokenBuilder, RtmTokenBuilder
 import time
 from django.http import JsonResponse
 
@@ -218,17 +218,61 @@ class ApplicantListView(APIView):
         return Response(applicants, status=status.HTTP_200_OK)
     
 
-def generate_agora_token(request, channel_name):
-    app_id = "0191d05e615549beb20676f14e80b476"
-    app_certificate = "c28e9798286c4f03861e9205261f359e"
-    uid = 0
-    role = 1
-    expiration_time = 3600
-    current_timestamp = int(time.time())
-    privilege_expired = current_timestamp + expiration_time
+class GenerateRtcTokenView(APIView):
+    permission_classes = [IsAuthenticated]
 
-    token = RtcTokenBuilder.buildTokenWithUid(
-        app_id, app_certificate, channel_name, uid, role, privilege_expired
-    )
-    
-    return JsonResponse({'token': token})
+    def get(self, request, channel_name):
+        app_id = "0191d05e615549beb20676f14e80b476"
+        app_certificate = "c28e9798286c4f03861e9205261f359e"
+        uid = 0
+        role = 1
+        expiration_time = 3600
+        current_timestamp = int(time.time())
+        privilege_expired = current_timestamp + expiration_time
+
+        token = RtcTokenBuilder.buildTokenWithUid(
+            app_id, app_certificate, channel_name, uid, role, privilege_expired
+        )
+        
+        return JsonResponse({'token': token})
+
+class GenerateRtmTokenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            app_id = "0191d05e615549beb20676f14e80b476"
+            app_certificate = "c28e9798286c4f03861e9205261f359e"
+            expiration_time = 3600
+            
+            # Validate user_id
+            user_id = str(user_id).strip()
+            if not user_id:
+                return Response({"error": "Invalid user ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Generate RTM token
+            current_timestamp = int(time.time())
+            privilegeExpiredTs = current_timestamp + expiration_time
+            
+            # Use buildToken instead of build_token
+            token = RtmTokenBuilder.buildToken(
+                app_id,
+                app_certificate,
+                user_id,
+                privilegeExpiredTs
+            )
+
+            return Response({'token': token})
+
+        except AttributeError as e:
+            print(f"RTM Token Error: Method not found - {str(e)}")
+            return Response(
+                {"error": "Invalid token generation method"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        except Exception as e:
+            print(f"RTM Token Error: {str(e)}")
+            return Response(
+                {"error": "Failed to generate RTM token"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
