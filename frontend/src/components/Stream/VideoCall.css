@@ -1,0 +1,33 @@
+.video-container {
+  display: flex;
+  height: 100vh;
+  background: #1a1a1a;
+}
+
+.video-main {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.video-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.video-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+}
+
+.str-video__call-controls {
+  background: transparent !important;
+}

@@ -19,7 +19,7 @@ import JobApplication from "./components/Public/JobApplication";
 import ResumeDetail from "./components/HR/ResumeDetail";
 import PdfViewer from "./components/HR/PdfViewer";
 import OTPVerification from "./components/Auth/OTPVerification";
-import InterviewRoom from "./components/Agora/InterviewRoom";
+import InterviewRoom from "./components/Stream/InterviewRoom";
 
 const App = () => {
   return (

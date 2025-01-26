@@ -24,9 +24,9 @@ import JobPosts from "./JobPosts";
 import JobPostDetail from "./JobPostDetail";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 import hrService from "../../services/hr.service";
-import AgoraVideoCall from "../Agora/AgoraVideoCall";
+import VideoCall from "../Stream/VideoCall";
 import ScheduleInterview from "./ScheduleInterview";
-import InterviewRoom from "../Agora/InterviewRoom";
+import InterviewRoom from "../Stream/InterviewRoom";
 import "./styles/HRDashboard.css";
 
 const HRDashboard = () => {

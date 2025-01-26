@@ -1,0 +1,31 @@
+.interview-platform {
+  min-height: calc(100vh - 100px);
+}
+
+.interview-card {
+  transition: transform 0.2s;
+  height: 100%;
+}
+
+.interview-card:hover {
+  transform: translateY(-5px);
+}
+
+.interview-card .card-title {
+  color: #2f2f2f;
+  margin-bottom: 1rem;
+}
+
+.interview-card .card-text {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.interview-card .btn {
+  background: #0056b3;
+  border: none;
+}
+
+.interview-card .btn:hover {
+  background: #004494;
+}

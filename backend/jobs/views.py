@@ -11,15 +11,18 @@ from .models import JobRequest, JobPost, Resume
 from .serializers import JobRequestSerializer, JobPostSerializer, ResumeSerializer
 from users.models import CustomUser, OTPVerification
 
-from djoser.conf import settings as djoser_settings
 from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
+from django.utils import timezone
 import logging
+import uuid
 
-from agora_token_builder import RtcTokenBuilder, RtmTokenBuilder
-import time
-from django.http import JsonResponse
+
+from stream_chat import StreamChat
+from getstream import Stream
+from getstream.models import UserRequest, CallRequest, MemberRequest
+
 
 logger = logging.getLogger(__name__)
 
@@ -218,61 +221,63 @@ class ApplicantListView(APIView):
         return Response(applicants, status=status.HTTP_200_OK)
     
 
-class GenerateRtcTokenView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, channel_name):
-        app_id = "0191d05e615549beb20676f14e80b476"
-        app_certificate = "c28e9798286c4f03861e9205261f359e"
-        uid = 0
-        role = 1
-        expiration_time = 3600
-        current_timestamp = int(time.time())
-        privilege_expired = current_timestamp + expiration_time
-
-        token = RtcTokenBuilder.buildTokenWithUid(
-            app_id, app_certificate, channel_name, uid, role, privilege_expired
-        )
-        
-        return JsonResponse({'token': token})
-
-class GenerateRtmTokenView(APIView):
+class GenerateStreamChatTokenView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, user_id):
+        client = StreamChat(api_key=settings.STREAM_API_KEY, api_secret=settings.STREAM_API_SECRET)
+        token = client.create_token(user_id)
+        return Response({'token': token})
+
+class GenerateStreamVideoTokenView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        room_id = request.query_params.get('room_id', str(uuid.uuid4()))
+        
         try:
-            app_id = "0191d05e615549beb20676f14e80b476"
-            app_certificate = "c28e9798286c4f03861e9205261f359e"
-            expiration_time = 3600
-            
-            # Validate user_id
-            user_id = str(user_id).strip()
-            if not user_id:
-                return Response({"error": "Invalid user ID"}, status=status.HTTP_400_BAD_REQUEST)
-
-            # Generate RTM token
-            current_timestamp = int(time.time())
-            privilegeExpiredTs = current_timestamp + expiration_time
-            
-            # Use buildToken instead of build_token
-            token = RtmTokenBuilder.buildToken(
-                app_id,
-                app_certificate,
-                user_id,
-                privilegeExpiredTs
+            # Initialize Stream client
+            client = Stream(
+                api_key=settings.STREAM_VIDEO_API_KEY,
+                api_secret=settings.STREAM_VIDEO_API_SECRET,
+                timeout=3.0
             )
 
-            return Response({'token': token})
-
-        except AttributeError as e:
-            print(f"RTM Token Error: Method not found - {str(e)}")
-            return Response(
-                {"error": "Invalid token generation method"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            # Ensure user exists in Stream
+            client.upsert_users(
+                UserRequest(
+                    id=user_id,
+                    name=request.user.get_full_name() or user_id,
+                    custom={"email": request.user.email}
+                ),
             )
+
+            # Create or get call
+            call = client.video.call("default", room_id)
+            call.create(
+                data=CallRequest(
+                    created_by_id=user_id,
+                    members=[
+                        MemberRequest(user_id=user_id, role="admin")
+                    ],
+                    custom={
+                        "room_name": room_id,
+                        "created_at": str(timezone.now())
+                    }
+                ),
+            )
+
+            # Generate token valid for 24 hours
+            token = client.create_token(user_id=user_id, expiration=86400)
+
+            return Response({
+                "token": token,
+                "call_cid": f"default:{room_id}",
+                "room_id": room_id
+            })
+
         except Exception as e:
-            print(f"RTM Token Error: {str(e)}")
             return Response(
-                {"error": "Failed to generate RTM token"},
+                {"error": f"Failed to generate video token: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

@@ -166,6 +166,10 @@ REST_FRAMEWORK = {
     ),
 }
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.ngrok.io",  # Trust ngrok domains
+]
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=5),
@@ -217,3 +221,8 @@ EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = 20
 
 FRONTEND_URL = 'http://localhost:5173'
+
+STREAM_API_KEY = 'havavvzf6mq2'
+STREAM_API_SECRET = 'shqghfvky66b899qqqmfnea5cam4jx5kdzf6k98xvpy68tj77q3fu7znckma6cfd'
+STREAM_VIDEO_API_KEY = 'havavvzf6mq2'
+STREAM_VIDEO_API_SECRET = 'shqghfvky66b899qqqmfnea5cam4jx5kdzf6k98xvpy68tj77q3fu7znckma6cfd'

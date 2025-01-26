@@ -22,6 +22,6 @@ urlpatterns = [
 
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
-    path("generate_agora_rtc_token/<str:channel_name>/", GenerateRtcTokenView.as_view(), name="generate-agora-rtc-token"),
-    path("generate_agora_rtm_token/<str:user_id>/", GenerateRtmTokenView.as_view(), name="generate-agora-rtm-token"),
+    path('generate_stream_chat_token/<str:user_id>/', GenerateStreamChatTokenView.as_view(), name='generate-stream-chat-token'),
+    path('generate_stream_video_token/<str:user_id>/', GenerateStreamVideoTokenView.as_view(), name='generate-stream-video-token'),
 ]
