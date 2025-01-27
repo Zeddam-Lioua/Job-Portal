@@ -33,9 +33,11 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'channels',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
@@ -44,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
+    
 ]
 
 MIDDLEWARE = [
@@ -80,6 +83,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
+ASGI_APPLICATION = 'backend.asgi.application'
 
 
 # Database
@@ -159,6 +163,28 @@ if DEBUG:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_HEADERS = ['*']
+CORS_ALLOW_METHODS = ['*']
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -222,7 +248,10 @@ EMAIL_TIMEOUT = 20
 
 FRONTEND_URL = 'http://localhost:5173'
 
+# Stream Configuration
 STREAM_API_KEY = 'havavvzf6mq2'
 STREAM_API_SECRET = 'shqghfvky66b899qqqmfnea5cam4jx5kdzf6k98xvpy68tj77q3fu7znckma6cfd'
-STREAM_VIDEO_API_KEY = 'havavvzf6mq2'
-STREAM_VIDEO_API_SECRET = 'shqghfvky66b899qqqmfnea5cam4jx5kdzf6k98xvpy68tj77q3fu7znckma6cfd'
+
+# Connection settings
+STREAM_CONNECTION_TIMEOUT = 30000
+STREAM_RECONNECTION_DELAY = 2000

@@ -22,6 +22,5 @@ urlpatterns = [
 
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),
-    path('generate_stream_chat_token/<str:user_id>/', GenerateStreamChatTokenView.as_view(), name='generate-stream-chat-token'),
-    path('generate_stream_video_token/<str:user_id>/', GenerateStreamVideoTokenView.as_view(), name='generate-stream-video-token'),
+    path('generate_stream_token/<str:user_id>/', GenerateStreamTokenView.as_view(), name='generate-stream-token'),
 ]

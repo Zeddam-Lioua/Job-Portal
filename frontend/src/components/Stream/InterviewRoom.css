@@ -1,0 +1,58 @@
+.interview-room {
+  height: 100vh;
+  background: #0f172a;
+  display: flex;
+  overflow: hidden;
+}
+
+.start-call-container {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0f172a;
+}
+
+.start-call-btn {
+  background: #2563eb !important;
+  border: none !important;
+  padding: 1rem 2rem !important;
+  font-size: 1.25rem !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.2s ease !important;
+}
+
+.start-call-btn:hover {
+  background: #1d4ed8 !important;
+  transform: translateY(-2px);
+}
+
+.video-section {
+  flex: 1;
+  position: relative;
+}
+
+.chat-section {
+  width: 25%;
+  border-left: 1px solid #1e293b;
+  background: #1a1a1a;
+  transition: all 0.3s ease;
+}
+
+.chat-section.hidden {
+  width: 0;
+  overflow: hidden;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  .interview-room {
+    flex-direction: column;
+  }
+
+  .chat-container {
+    height: 40vh;
+    border-left: none;
+    border-top: 1px solid #1e293b;
+  }
+}

@@ -14,9 +14,10 @@ from users.models import CustomUser, OTPVerification
 from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
-from django.utils import timezone
 import logging
 import uuid
+import time
+
 
 
 from stream_chat import StreamChat
@@ -221,63 +222,28 @@ class ApplicantListView(APIView):
         return Response(applicants, status=status.HTTP_200_OK)
     
 
-class GenerateStreamChatTokenView(APIView):
+class GenerateStreamTokenView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, user_id):
-        client = StreamChat(api_key=settings.STREAM_API_KEY, api_secret=settings.STREAM_API_SECRET)
-        token = client.create_token(user_id)
-        return Response({'token': token})
-
-class GenerateStreamVideoTokenView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, user_id):
-        room_id = request.query_params.get('room_id', str(uuid.uuid4()))
-        
         try:
-            # Initialize Stream client
-            client = Stream(
-                api_key=settings.STREAM_VIDEO_API_KEY,
-                api_secret=settings.STREAM_VIDEO_API_SECRET,
-                timeout=3.0
+            room_id = request.query_params.get('room_id')
+            clean_user_id = user_id.replace('@', '_').replace('.', '_')
+            
+            client = StreamChat(
+                api_key=settings.STREAM_API_KEY,
+                api_secret=settings.STREAM_API_SECRET
             )
 
-            # Ensure user exists in Stream
-            client.upsert_users(
-                UserRequest(
-                    id=user_id,
-                    name=request.user.get_full_name() or user_id,
-                    custom={"email": request.user.email}
-                ),
-            )
-
-            # Create or get call
-            call = client.video.call("default", room_id)
-            call.create(
-                data=CallRequest(
-                    created_by_id=user_id,
-                    members=[
-                        MemberRequest(user_id=user_id, role="admin")
-                    ],
-                    custom={
-                        "room_name": room_id,
-                        "created_at": str(timezone.now())
-                    }
-                ),
-            )
-
-            # Generate token valid for 24 hours
-            token = client.create_token(user_id=user_id, expiration=86400)
+            token = client.create_token(clean_user_id)
 
             return Response({
                 "token": token,
-                "call_cid": f"default:{room_id}",
+                "call_cid": f"default:{room_id}" if room_id else None,
                 "room_id": room_id
             })
-
         except Exception as e:
             return Response(
-                {"error": f"Failed to generate video token: {str(e)}"},
+                {"error": f"Failed to generate token: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

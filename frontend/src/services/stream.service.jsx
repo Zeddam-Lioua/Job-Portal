@@ -1,27 +1,15 @@
 import api from "./api";
 
 const streamService = {
-  generateChatToken: async (userId) => {
+  generateToken: async (userId, roomId = null) => {
     try {
-      const response = await api.get(`/generate_stream_chat_token/${userId}/`);
+      const cleanUserId = userId.replace("@", "_").replace(".", "_");
+      const response = await api.get(`/generate_stream_token/${cleanUserId}/`, {
+        params: roomId ? { room_id: roomId } : {},
+      });
       return response.data;
     } catch (error) {
-      console.error("Error generating chat token:", error);
-      throw error;
-    }
-  },
-
-  generateVideoToken: async (userId, roomId) => {
-    try {
-      const response = await api.get(
-        `/generate_stream_video_token/${userId}/`,
-        {
-          params: { room_id: roomId },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error generating video token:", error);
+      console.error("Error generating token:", error);
       throw error;
     }
   },

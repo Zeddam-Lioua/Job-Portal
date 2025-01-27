@@ -3,8 +3,8 @@ import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { formatStreamUserId } from "../../utils/streamUtils";
 import { Container, Button, Row, Col } from "react-bootstrap";
-import ChatRoom from "./ChatRoom";
 import VideoCall from "./VideoCall";
+import ChatRoom from "./ChatRoom";
 
 const InterviewRoom = () => {
   const { roomName } = useParams();

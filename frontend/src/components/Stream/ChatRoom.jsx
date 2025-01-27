@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Chat,
   Channel,
@@ -12,31 +12,37 @@ import streamService from "../../services/stream.service";
 import "./ChatRoom.css";
 
 const ChatRoom = ({ userId, channelId }) => {
-  const [isConnected, setIsConnected] = useState(false);
-
   const [client, setClient] = useState(null);
   const [channel, setChannel] = useState(null);
   const [error, setError] = useState(null);
+  const chatClientRef = useRef(null);
 
   useEffect(() => {
-    let chatClient;
-
     const initChat = async () => {
       try {
-        chatClient = StreamChat.getInstance(STREAM_API_KEY);
+        // Only initialize if we don't have a client or if user changed
+        if (!chatClientRef.current || chatClientRef.current.userID !== userId) {
+          const cleanUserId = userId.replace("@", "_").replace(".", "_");
+          const { token } = await streamService.generateToken(cleanUserId);
 
-        // Prevent multiple connections
-        if (chatClient.user?.id === userId || isConnected) return;
+          if (!chatClientRef.current) {
+            chatClientRef.current = StreamChat.getInstance(STREAM_API_KEY);
+          }
 
-        const { token } = await streamService.generateChatToken(userId);
-        await chatClient.connectUser({ id: userId }, token);
-        setIsConnected(true);
+          await chatClientRef.current.connectUser(
+            {
+              id: cleanUserId,
+              name: cleanUserId,
+            },
+            token
+          );
 
-        const channel = chatClient.channel("messaging", channelId);
-        await channel.watch();
+          const channel = chatClientRef.current.channel("messaging", channelId);
+          await channel.watch();
 
-        setClient(chatClient);
-        setChannel(channel);
+          setClient(chatClientRef.current);
+          setChannel(channel);
+        }
       } catch (error) {
         console.error("Chat initialization error:", error);
         setError(error.message);
@@ -46,9 +52,14 @@ const ChatRoom = ({ userId, channelId }) => {
     initChat();
 
     return () => {
-      if (chatClient) {
-        chatClient.disconnectUser();
-      }
+      const cleanup = async () => {
+        if (chatClientRef.current) {
+          setChannel(null);
+          await chatClientRef.current.disconnectUser();
+          chatClientRef.current = null;
+        }
+      };
+      cleanup();
     };
   }, [userId, channelId]);
 
