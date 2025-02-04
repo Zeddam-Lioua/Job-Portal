@@ -1,0 +1,72 @@
+.profile-card {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: var(--surface);
+  color: var(--text);
+  transition: background-color var(--transition-timing),
+    color var(--transition-timing);
+}
+
+.profile-card .card-title {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  color: var(--text);
+  transition: color var(--transition-timing);
+}
+
+.profile-card .form-control {
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  background-color: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+  transition: background-color var(--transition-timing),
+    color var(--transition-timing), border-color var(--transition-timing);
+}
+
+.profile-card .btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-card .btn-primary {
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  color: white;
+}
+
+.profile-card .btn-danger {
+  background: linear-gradient(45deg, #dc3545, #c82333);
+  color: white;
+}
+
+.profile-card .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.profile-preview {
+  width: 100px;
+  background-color: var(--surface);
+  transition: background-color var(--transition-timing);
+}
+
+.form-label {
+  color: var(--text);
+  transition: color var(--transition-timing);
+}
+
+.input-group-text {
+  background-color: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+  transition: background-color var(--transition-timing),
+    color var(--transition-timing), border-color var(--transition-timing);
+}
+
+.form-text {
+  color: var(--text-secondary);
+  transition: color var(--transition-timing);
+}

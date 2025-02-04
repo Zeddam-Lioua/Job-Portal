@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import api from "../services/api";
+import authService from "../services/auth.service";
 
 const AuthContext = createContext();
 
@@ -39,11 +40,32 @@ const AuthProvider = ({ children }) => {
 
   const fetchUserProfile = async () => {
     try {
-      const response = await api.get("/user/");
-      console.log("User profile response:", response.data);
+      const response = await authService.getCurrentUser();
+      if (!response || !response.data) {
+        throw new Error("Invalid response structure");
+      }
       return response.data;
     } catch (error) {
       console.error("Failed to fetch user profile:", error);
+      throw error;
+    }
+  };
+
+  const updateUser = async (data) => {
+    try {
+      const updatedUser = await authService.updateUser(data);
+      setUser(updatedUser);
+    } catch (error) {
+      console.error("Failed to update user:", error);
+      throw error;
+    }
+  };
+
+  const sendPasswordChangeEmail = async (email) => {
+    try {
+      await authService.sendPasswordChangeEmail(email);
+    } catch (error) {
+      console.error("Failed to send password change email:", error);
       throw error;
     }
   };
@@ -90,9 +112,24 @@ const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
+  const uploadProfilePicture = async (formData) => {
+    const updatedUser = await authService.uploadProfilePicture(formData);
+    setUser(updatedUser);
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, isAuthenticated, login, register, logout, loading }}
+      value={{
+        user,
+        updateUser,
+        sendPasswordChangeEmail,
+        isAuthenticated,
+        login,
+        register,
+        logout,
+        loading,
+        uploadProfilePicture,
+      }}
     >
       {children}
     </AuthContext.Provider>

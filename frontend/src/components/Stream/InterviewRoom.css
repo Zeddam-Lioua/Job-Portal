@@ -5,28 +5,6 @@
   overflow: hidden;
 }
 
-.start-call-container {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #0f172a;
-}
-
-.start-call-btn {
-  background: #2563eb !important;
-  border: none !important;
-  padding: 1rem 2rem !important;
-  font-size: 1.25rem !important;
-  border-radius: 0.5rem !important;
-  transition: all 0.2s ease !important;
-}
-
-.start-call-btn:hover {
-  background: #1d4ed8 !important;
-  transform: translateY(-2px);
-}
-
 .video-section {
   flex: 1;
   position: relative;

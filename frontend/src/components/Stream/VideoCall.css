@@ -6,8 +6,7 @@
 
 .video-main {
   height: 100%;
-  display: flex;
-  flex-direction: column;
+  position: relative;
 }
 
 .video-controls {
@@ -24,10 +23,43 @@
   z-index: 100;
 }
 
-/* Override Stream default styles */
+/* Override Stream's default styles */
+:root {
+  --str-video__primary-color: #2563eb;
+  --str-video__button-background: rgba(255, 255, 255, 0.1);
+  --str-video__button-background-hover: rgba(255, 255, 255, 0.2);
+}
+
 .str-video__button {
   --str-video__button-background: rgba(255, 255, 255, 0.1) !important;
   --str-video__button-background-hover: rgba(255, 255, 255, 0.2) !important;
   color: white !important;
-  padding: 8px !important;
+  background: var(--str-video__button-background) !important;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 4px !important;
+}
+
+.str-video__button:hover {
+  background: var(--str-video__button-background-hover) !important;
+}
+
+.str-video__button svg {
+  fill: white !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.str-video__button--primary {
+  background: var(--str-video__primary-color) !important;
+}
+
+.str-video__call-controls {
+  display: flex !important;
+  gap: 8px !important;
+  background: transparent !important;
 }

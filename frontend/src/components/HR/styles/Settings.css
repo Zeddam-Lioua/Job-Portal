@@ -1,0 +1,29 @@
+.settings {
+  padding: 2rem;
+  background-color: var(--surface);
+  border-radius: 8px;
+  color: var(--text);
+}
+
+.theme-section {
+  margin-top: 2rem;
+}
+
+.theme-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.theme-button {
+  padding: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.2s;
+  border: 2px solid transparent;
+}
+
+.theme-button.active {
+  box-shadow: 0 0 0 2px var(--primary);
+}

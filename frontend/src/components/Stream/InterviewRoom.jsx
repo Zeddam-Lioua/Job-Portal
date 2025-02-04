@@ -9,12 +9,7 @@ import ChatRoom from "./ChatRoom";
 const InterviewRoom = () => {
   const { roomName } = useParams();
   const { user } = useAuth();
-  const [isCallStarted, setIsCallStarted] = useState(false);
   const currentUserId = user?.email ? formatStreamUserId(user.email) : null;
-
-  const handleStartCall = () => {
-    setIsCallStarted(true);
-  };
 
   if (!currentUserId) {
     return <div>Loading user information...</div>;
@@ -23,26 +18,13 @@ const InterviewRoom = () => {
   return (
     <Container fluid className="interview-room p-0">
       <Row className="g-0">
-        <Col md={isCallStarted ? 9 : 12}>
-          {isCallStarted ? (
-            <VideoCall userId={currentUserId} roomId={roomName} />
-          ) : (
-            <div className="start-call-container">
-              <Button
-                size="lg"
-                onClick={handleStartCall}
-                className="start-call-btn"
-              >
-                Start Interview
-              </Button>
-            </div>
-          )}
+        <Col>
+          <VideoCall userId={currentUserId} roomId={roomName} />
         </Col>
-        {isCallStarted && (
-          <Col md={3}>
-            <ChatRoom userId={currentUserId} channelId={roomName} />
-          </Col>
-        )}
+
+        <Col md={3}>
+          <ChatRoom userId={currentUserId} channelId={roomName} />
+        </Col>
       </Row>
     </Container>
   );

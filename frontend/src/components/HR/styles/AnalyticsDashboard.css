@@ -1,27 +1,88 @@
 .analytics-dashboard {
-    background-color: #f8f9fa;
-    min-height: 100vh;
+  background-color: var(--background);
+  color: var(--text);
+  padding-top: 2rem;
+  transition: background-color var(--transition-timing),
+    color var(--transition-timing);
 }
 
-.dashboard-title {
-    color: #2c3e50;
-    font-weight: 600;
+.analytics-dashboard .dashboard-title {
+  color: var(--text) !important;
+  font-weight: 600;
+  transition: color var(--transition-timing);
 }
 
 .analytics-stat-card {
-    background: white;
-    border: none;
-    border-radius: 10px;
-    transition: transform 0.2s, box-shadow 0.2s;
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+  height: 100%;
+  box-shadow: var(--shadow);
+  transition: background-color var(--transition-timing),
+    border-color var(--transition-timing), color var(--transition-timing);
 }
 
 .analytics-stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  /* transform: translateY(-5px); */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.stat-icon {
-    font-size: 2rem;
-    color: #007bff;
-    opacity: 0.8;
+.analytics-chart-card {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: background-color var(--transition-timing),
+    border-color var(--transition-timing), color var(--transition-timing);
+}
+
+.text-muted {
+  color: var(--text-secondary) !important;
+  transition: color var(--transition-timing);
+}
+
+h3,
+h4,
+h6 {
+  color: var(--text);
+  transition: color var(--transition-timing);
+}
+
+.chart-container {
+  margin-top: 1.5rem;
+}
+
+/* Chart customization for theme compatibility */
+.chart-tooltip {
+  background-color: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+  transition: background-color var(--transition-timing),
+    border-color var(--transition-timing), color var(--transition-timing);
+}
+
+/* Grid lines */
+.chart-grid-lines {
+  stroke: var(--border) !important;
+  transition: stroke var(--transition-timing);
+}
+
+/* Labels */
+.chart-labels {
+  color: var(--text) !important;
+  transition: color var(--transition-timing);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .analytics-dashboard {
+    padding-top: 1rem;
+  }
+
+  .analytics-stat-card,
+  .analytics-chart-card {
+    margin-bottom: 1rem;
+  }
 }

@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import AuthProvider from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext.jsx";
 import Navbar from "./components/layout/Navbar";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
@@ -16,10 +17,10 @@ import JobList from "./components/Public/JobList";
 import About from "./components/Public/About";
 import PrivateRoute from "./components/Auth/PrivateRoute";
 import JobApplication from "./components/Public/JobApplication";
-import ResumeDetail from "./components/HR/ResumeDetail";
-import PdfViewer from "./components/HR/PdfViewer";
 import OTPVerification from "./components/Auth/OTPVerification";
 import InterviewRoom from "./components/Stream/InterviewRoom";
+import GuestInterview from "./components/Stream/GuestInterview";
+import "./App.css";
 
 const App = () => {
   return (
@@ -33,6 +34,10 @@ const App = () => {
           <Route path="/admin/login" element={<Login />} />
           <Route path="/admin/register" element={<Register />} />
           <Route path="/admin/verify-otp" element={<OTPVerification />} />
+          <Route path="/apply/:id" element={<JobApplication />} />
+          <Route path="/guest/interview/:roomId" element={<GuestInterview />} />
+          <Route path="*" element={<Navigate to="/" />} />
+
           <Route
             path="/admin/hr/dashboard/interview/:roomName"
             element={
@@ -45,7 +50,9 @@ const App = () => {
             path="/admin/hr/dashboard/*"
             element={
               <PrivateRoute>
-                <HRDashboard />
+                <ThemeProvider>
+                  <HRDashboard />
+                </ThemeProvider>
               </PrivateRoute>
             }
           />
@@ -53,15 +60,12 @@ const App = () => {
             path="/admin/dm/dashboard/*"
             element={
               <PrivateRoute>
-                <DMDashboard />
+                <ThemeProvider>
+                  <DMDashboard />
+                </ThemeProvider>
               </PrivateRoute>
             }
           />
-          <Route path="/apply/:id" element={<JobApplication />} />
-          <Route path="/resume-detail/:id" element={<ResumeDetail />} />
-          <Route path="/pdf-viewer" element={<PdfViewer />} />
-          <Route path="/interview/:roomName" element={<InterviewRoom />} />
-          <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </Router>
     </AuthProvider>

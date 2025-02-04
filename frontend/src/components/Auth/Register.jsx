@@ -26,7 +26,8 @@ export default function Register() {
   const [step, setStep] = useState(1);
   const [showPhoneOTP, setShowPhoneOTP] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
+    first_name: "",
+    last_name: "",
     email: "",
     user_type: "",
     password1: "",
@@ -69,7 +70,8 @@ export default function Register() {
     try {
       setIsLoading(true);
       await authService.register(
-        formData.username,
+        formData.first_name,
+        formData.last_name,
         formData.email,
         formData.password1,
         formData.password2,
@@ -93,7 +95,8 @@ export default function Register() {
       switch (step) {
         case 1:
           await authService.register(
-            formData.username,
+            formData.first_name,
+            formData.last_name,
             formData.email,
             formData.password1,
             formData.password2,
@@ -174,17 +177,24 @@ export default function Register() {
         return (
           <>
             <Form.Group className="mb-3">
-              <Form.Label>
-                <FontAwesomeIcon icon={faUser} className="me-2" />
-                Username
-              </Form.Label>
+              <Form.Label>First Name</Form.Label>
               <Form.Control
                 type="text"
-                name="username"
-                value={formData.username}
+                name="first_name"
+                value={formData.first_name}
                 onChange={handleChange}
                 required
-                placeholder="Enter your username"
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Last Name</Form.Label>
+              <Form.Control
+                type="text"
+                name="last_name"
+                value={formData.last_name}
+                onChange={handleChange}
+                required
               />
             </Form.Group>
 

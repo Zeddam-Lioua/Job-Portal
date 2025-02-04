@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   StreamVideo,
   StreamCall,
@@ -10,12 +10,19 @@ import VideoProvider from "./VideoProvider";
 import { useAuth } from "../../context/AuthContext";
 import "./VideoCall.css";
 
-const VideoCall = ({ userId, roomId }) => {
+const VideoCall = ({ userId, roomId, isGuest = false }) => {
   const { user } = useAuth();
-  const isHost = user?.role === "HR";
+  const isHost = !isGuest && user?.user_type === "human_resources";
+
+  useEffect(() => {
+    return () => {
+      console.log("Cleaning up VideoCall...");
+      // No need to explicitly leave the call here since VideoProvider handles it
+    };
+  }, []);
 
   return (
-    <VideoProvider userId={userId} roomId={roomId}>
+    <VideoProvider userId={userId} roomId={roomId} isGuest={isGuest}>
       {({ client, call }) =>
         client && call ? (
           <StreamVideo client={client}>

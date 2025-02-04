@@ -6,7 +6,6 @@ import {
   faHome,
   faSignInAlt,
   faUserPlus,
-  faBriefcase,
   faUser,
   faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
@@ -14,7 +13,7 @@ import { useAuth } from "../../context/AuthContext";
 import "./Navbar.css";
 
 const Navigation = () => {
-  const { isAuthenticated, userType, user, logout } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -27,28 +26,25 @@ const Navigation = () => {
     if (isAuthenticated) {
       return (
         <div className="d-flex align-items-center">
-          <div className="user-profile-section">
-            <div className="d-flex align-items-center">
-              {user && user.profile_picture ? (
-                <img
-                  src={user.profile_picture}
-                  alt="Profile"
-                  className="nav-profile-pic"
-                />
-              ) : (
-                <FontAwesomeIcon icon={faUser} className="nav-profile-icon" />
-              )}
-              <span className="username">{user?.username}</span>
-            </div>
-            <Button
-              variant="outline-light"
-              onClick={handleLogout}
-              className="logout-btn ms-3"
-            >
-              <FontAwesomeIcon icon={faSignOutAlt} className="me-2" />
-              Logout
-            </Button>
-          </div>
+          <Link to="/admin/hr/dashboard/profile">
+            {user && user.profile_picture ? (
+              <img
+                src={user.profile_picture}
+                alt="Profile"
+                className="nav-profile-pic"
+              />
+            ) : (
+              <FontAwesomeIcon icon={faUser} className="nav-profile-icon" />
+            )}
+          </Link>
+          <Button
+            variant="outline-light"
+            onClick={handleLogout}
+            className="logout-btn ms-3"
+          >
+            <FontAwesomeIcon icon={faSignOutAlt} className="me-2" />
+            Logout
+          </Button>
         </div>
       );
     } else if (location.pathname.startsWith("/admin")) {
@@ -76,11 +72,18 @@ const Navigation = () => {
     return null;
   };
 
+  // Don't render navbar for HR users
+  if (
+    user?.user_type === "human_resources" &&
+    location.pathname.includes("/admin/hr/dashboard")
+  ) {
+    return null;
+  }
+
   return (
     <Navbar expand="lg" className="modern-navbar" variant="dark">
       <Container>
         <Navbar.Brand as={Link} to="/" className="brand-text">
-          <FontAwesomeIcon icon={faBriefcase} className="me-2" />
           Job Portal
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -95,7 +98,7 @@ const Navigation = () => {
               Home
             </Nav.Link>
           </Nav>
-          <Nav>{renderAuthLinks()}</Nav>
+          <Nav className="ms-auto">{renderAuthLinks()}</Nav>
         </Navbar.Collapse>
       </Container>
     </Navbar>

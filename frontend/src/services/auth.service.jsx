@@ -1,9 +1,10 @@
 import axios from "axios";
+import api from "./api";
 
 const API_URL = "http://localhost:8000/api/";
 
-const login = async (username, password) => {
-  const response = await axios.post(API_URL + "login/", { username, password });
+const login = async (email, password) => {
+  const response = await axios.post(API_URL + "login/", { email, password });
   if (response.data.access) {
     localStorage.setItem("user", JSON.stringify(response.data));
     setRefreshTokenInterval();
@@ -17,7 +18,8 @@ const logout = () => {
 };
 
 const register = async (
-  username,
+  first_name,
+  last_name,
   email,
   password1,
   password2,
@@ -25,7 +27,8 @@ const register = async (
   phone
 ) => {
   return axios.post(API_URL + "register/", {
-    username,
+    first_name,
+    last_name,
     email,
     password1,
     password2,
@@ -92,13 +95,24 @@ const uploadProfilePicture = async (formData) => {
   }
 };
 
-const getCurrentUser = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
-  if (user?.profile_picture) {
-    // Add base URL to profile picture if it's a relative path
-    user.profile_picture = `${API_URL}${user.profile_picture}`;
+const getCurrentUser = async () => {
+  try {
+    const response = await api.get("/user/");
+    return response;
+  } catch (error) {
+    console.error("Failed to fetch current user:", error);
+    throw error;
   }
-  return user;
+};
+
+const updateUser = async (data) => {
+  try {
+    const response = await api.put("/user/", data);
+    return response.data;
+  } catch (error) {
+    console.error("Failed to update user:", error);
+    throw error;
+  }
 };
 
 const refreshToken = async () => {
@@ -131,6 +145,16 @@ const clearRefreshTokenInterval = () => {
   }
 };
 
+const sendPasswordChangeEmail = async (email) => {
+  try {
+    const response = await api.post("/send-password-change-email/", { email });
+    return response.data;
+  } catch (error) {
+    console.error("Failed to send password change email:", error);
+    throw error;
+  }
+};
+
 export default {
   login,
   logout,
@@ -141,4 +165,6 @@ export default {
   sendPhoneOTP,
   verifyPhone,
   uploadProfilePicture,
+  updateUser,
+  sendPasswordChangeEmail,
 };

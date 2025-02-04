@@ -75,8 +75,33 @@ const getApplicants = () => {
   return api.get("/applicants/");
 };
 
+const getTeamMembers = () => {
+  return api.get("/team/");
+};
+
 const scheduleInterview = (data) => {
-  return api.post("/schedule-interview/", data);
+  console.log("Sending interview data:", data);
+  return api.post("/schedule/", data);
+};
+
+const sendInterviewInvitation = (data) => {
+  return api.post("/send-invitation/", data);
+};
+
+const getInterviewRecordings = () => {
+  return api.get("/recordings/");
+};
+
+const getUpcomingMeetings = () => {
+  return api.get("/upcoming/");
+};
+
+const getPersonalRoom = () => {
+  return api.get("/personal-room/");
+};
+
+const joinMeeting = (meetingId) => {
+  return api.get(`/join/${meetingId}`);
 };
 
 const hrService = {
@@ -97,7 +122,13 @@ const hrService = {
   getAnalyticsStats,
   updateResumeStatus,
   getApplicants,
+  getTeamMembers,
   scheduleInterview,
+  getUpcomingMeetings,
+  sendInterviewInvitation,
+  getInterviewRecordings,
+  joinMeeting,
+  getPersonalRoom,
 };
 
 export default hrService;

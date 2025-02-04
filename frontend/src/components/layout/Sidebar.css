@@ -1,0 +1,154 @@
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 270px;
+  height: 100%;
+  background: var(--surface);
+  color: var(--text);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all var(--transition-timing);
+}
+.sidebar-top {
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}
+
+.logo-container {
+  width: 120px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  width: 100%;
+  height: 96px;
+  fill: currentColor;
+  color: var(--text);
+  transition: color var(--transition-timing);
+}
+
+/* Theme-specific styles */
+[data-theme="light"] .logo {
+  color: var(--text);
+}
+
+[data-theme="dark"] .logo,
+[data-theme="blue"] .logo {
+  color: #ffffff;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  color: var(--text);
+  text-decoration: none;
+  transition: background-color var(--transition-timing);
+}
+
+.sidebar-link .me-2 {
+  width: 20px; /* Fixed width for all icons */
+  font-size: 1.2rem; /* Consistent icon size */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 12px !important; /* Override Bootstrap's me-2 */
+}
+
+.link-text {
+  font-size: 14px;
+  margin-left: 4px; /* Consistent spacing after icon */
+}
+
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Consistent spacing between links */
+}
+
+.sidebar-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: inherit;
+  margin-top: auto;
+  padding: 0 24px;
+}
+
+.sidebar-bottom .sidebar-link {
+  padding: 12px 0;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.separator {
+  height: 1px;
+  background: var(--border);
+  margin: 30px 0;
+}
+
+.profile-widget {
+  width: 270px;
+  height: 66px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+  background-color: var(--surface);
+  color: var(--text);
+  transition: all var(--transition-timing);
+}
+
+.profile-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--transition-timing);
+}
+
+.profile-pic {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.profile-icon {
+  font-size: 3rem;
+  margin-right: 10px;
+  color: inherit;
+  transition: all var(--transition-timing);
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: all var(--transition-timing);
+}
+
+.profile-name {
+  width: 162px;
+  height: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  color: inherit;
+  transition: all var(--transition-timing);
+}
+
+.profile-type {
+  width: 162px;
+  height: 16px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  transition: all var(--transition-timing);
+}
