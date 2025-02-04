@@ -7,22 +7,14 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count, Avg, F
 
-from .models import JobRequest, JobPost, Resume
-from .serializers import JobRequestSerializer, JobPostSerializer, ResumeSerializer
+from .models import *
+from .serializers import *
 from users.models import CustomUser, OTPVerification
 
 from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 import logging
-import uuid
-import time
-
-
-
-from stream_chat import StreamChat
-from getstream import Stream
-from getstream.models import UserRequest, CallRequest, MemberRequest
 
 
 logger = logging.getLogger(__name__)
@@ -189,61 +181,15 @@ class AnalyticsStatsView(APIView):
             return Response({'error': str(e)}, status=500)
 
 
-class ScheduleInterviewView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        try:
-            email = request.data.get('email')
-            meeting_date = request.data.get('meetingDate')
-            room_name = request.data.get('roomName')
-            user = CustomUser.objects.get(email=email)
-            meeting_link = f"{settings.FRONTEND_URL}/interview/{room_name}"
-            email_subject = "Interview Schedule"
-            email_body = f"Dear {user.first_name},\n\nYou have been scheduled for a remote interview on {meeting_date}. Please join the meeting using the following link:\n\n{meeting_link}\n\nBest regards,\nHR Team"
-            send_mail(
-                email_subject,
-                email_body,
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-                fail_silently=False,
-            )
-            return Response({"message": "Interview scheduled and email sent successfully."}, status=status.HTTP_200_OK)
-        except CustomUser.DoesNotExist:
-            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 class ApplicantListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        applicants = CustomUser.objects.filter(is_active=False, is_staff=False).values('email')
+        applicants = Resume.objects.values(
+            'id',
+            'applicant',
+            'email',
+            'status'
+        ).filter(status='pending')
         return Response(applicants, status=status.HTTP_200_OK)
     
-
-class GenerateStreamTokenView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, user_id):
-        try:
-            room_id = request.query_params.get('room_id')
-            clean_user_id = user_id.replace('@', '_').replace('.', '_')
-            
-            client = StreamChat(
-                api_key=settings.STREAM_API_KEY,
-                api_secret=settings.STREAM_API_SECRET
-            )
-
-            token = client.create_token(clean_user_id)
-
-            return Response({
-                "token": token,
-                "call_cid": f"default:{room_id}" if room_id else None,
-                "room_id": room_id
-            })
-        except Exception as e:
-            return Response(
-                {"error": f"Failed to generate token: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )

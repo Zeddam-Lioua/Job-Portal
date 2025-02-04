@@ -12,5 +12,7 @@ urlpatterns = [
     path('upload-profile-picture/', UploadProfilePictureView.as_view(), name='upload-profile-picture'),
     path("logout/", UserLogoutAPIView.as_view(), name="logout-user"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
-    path("user/", UserInfoAPIView.as_view(), name="user-info"),
+    path("user/", UserInfoAPIView.as_view(), name="user-profile"),
+    path('send-password-change-email/', SendPasswordChangeEmailView.as_view(), name='send-password-change-email'),
+    path('team/', TeamMembersView.as_view(), name='team-members'),
 ]

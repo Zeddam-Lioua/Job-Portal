@@ -105,3 +105,4 @@ class Resume(models.Model):
     def validate_pdf(file):
         if not file.name.endswith('.pdf'):
             raise ValidationError('Invalid file type. Only PDF files are allowed.')
+        

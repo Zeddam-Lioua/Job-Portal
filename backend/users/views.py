@@ -1,7 +1,7 @@
 from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions, generics
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -12,6 +12,7 @@ from .models import OTPVerification, PhoneVerification, CustomUser
 from django.core.mail import send_mail
 from django.conf import settings
 import logging
+from .serializers import CustomUserSerializer
 
 
 from backend.utils import DevelopmentSMSService
@@ -274,5 +275,36 @@ class UserLogoutAPIView(GenericAPIView):
             return Response(status= status.HTTP_400_BAD_REQUEST)
 
 
+class SendPasswordChangeEmailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        email = user.email
+        try:
+            send_mail(
+                'Password Change Request',
+                'Click the link below to change your password:',
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
+            return Response({'message': 'Password change email sent successfully'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+class TeamMembersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        users = CustomUser.objects.filter(
+            user_type__in=['human_resources', 'district_manager']
+        ).values('id', 'first_name', 'last_name', 'email', 'user_type', 'profile_picture')
+        
+        # Normalize profile picture paths
+        for user in users:
+            if user['profile_picture']:
+                user['profile_picture'] = settings.MEDIA_URL + str(user['profile_picture'])
+        
+        return Response(users)

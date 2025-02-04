@@ -6,6 +6,8 @@ from django.core.validators import MinLengthValidator
 
 class CustomUser(AbstractUser):
     # Custom user model extending Django's built-in user
+    first_name = models.CharField(max_length=150, blank=True)
+    last_name = models.CharField(max_length=150, blank=True)
     USER_TYPES = (
         ('district_manager', 'District Manager'),
         ('human_resources', 'Human Resources'),

@@ -5,13 +5,13 @@ from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser, OTPVerification
 
 class CustomUserAdmin(UserAdmin):
-    list_display = ('email', 'username', 'user_type', 'is_active', 'date_joined')
+    list_display = ('email', 'first_name', 'last_name', 'user_type', 'is_active', 'date_joined')
     list_filter = ('user_type', 'is_active')
-    search_fields = ('email', 'username', 'user_type')
+    search_fields = ('email', 'first_name', 'last_name', 'user_type')
     ordering = ('-date_joined',)
     
     fieldsets = (
-        (None, {'fields': ('email', 'username', 'password', 'profile_picture')}),
+        (None, {'fields': ('email', 'first_name', 'last_name', 'password', 'profile_picture')}),
         ('Personal info', {'fields': ('user_type', 'phone')}),
         ('Permissions', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
@@ -20,7 +20,7 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'username', 'user_type', 'password1', 'password2'),
+            'fields': ('email', 'first_name', 'last_name', 'user_type', 'password1', 'password2'),
         }),
     )
 

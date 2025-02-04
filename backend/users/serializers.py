@@ -12,7 +12,7 @@ from django.utils.html import strip_tags
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta(UserCreateSerializer.Meta):
         model = CustomUser
-        fields = ('id', 'username', 'email', 'password', 'user_type', 'phone', 'profile_picture')
+        fields = ('id', 'first_name', 'last_name', 'email', 'password', 'user_type', 'phone', 'profile_picture')
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate_phone(phone):
@@ -43,7 +43,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'username', 'email', 'password1', 'password2', 'user_type', 'phone', 'otp', 'profile_picture')
+        fields = ('id', 'first_name', 'last_name', 'email', 'password1', 'password2', 'user_type', 'phone', 'otp', 'profile_picture')
         extra_kwargs = {
             'password': {'write_only': True},
         }

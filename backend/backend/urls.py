@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/', include('djoser.urls.jwt')),
     path('api/', include('jobs.urls')),
     path('api/', include('users.urls')),
+    path('api/', include('interviews.urls')),
     path("api-auth/", include("rest_framework.urls")),
     path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
