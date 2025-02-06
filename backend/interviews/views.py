@@ -25,27 +25,12 @@ class GenerateStreamTokenView(APIView):
             room_id = request.query_params.get('room_id')
             clean_user_id = user_id.replace('@', '_').replace('.', '_')
             
-            client = StreamChat(
+            client = Stream(
                 api_key=settings.STREAM_API_KEY,
                 api_secret=settings.STREAM_API_SECRET
             )
 
-            # Add HR-specific permissions
-            hr_permissions = {
-                "call_permissions": [
-                    "send-audio",
-                    "send-video",
-                    "screenshare",
-                    "join-call",
-                    "create-call",
-                    "end-call",
-                    "remove-call-member",
-                    "mute-users"
-                ],
-                "role": "admin"
-            }
-
-            token = client.create_token(clean_user_id, **hr_permissions)
+            token = client.create_token(clean_user_id)
 
             return Response({
                 "token": token,
@@ -62,65 +47,60 @@ class GuestStreamTokenView(APIView):
     def get(self, request, user_id):
         try:
             room_id = request.query_params.get('room_id')
-
-            # Validate inputs
+            first_name = request.query_params.get('firstName', '')
+            last_name = request.query_params.get('lastName', '')
+            
             if not user_id.startswith('guest_'):
-                return Response(
-                    {"error": "Invalid guest user"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            if not room_id:
-                return Response(
-                    {"error": "Room ID is required"},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
+                return Response({"error": "Invalid guest user"}, status=status.HTTP_400_BAD_REQUEST)
+            
             clean_user_id = user_id.replace('@', '_').replace('.', '_')
-
-            client = StreamChat(
+            display_name = f"{first_name} {last_name}".strip() or f"Guest {clean_user_id}"
+            
+            client = Stream(
                 api_key=settings.STREAM_API_KEY,
                 api_secret=settings.STREAM_API_SECRET
             )
 
-            # Register the guest user with the 'call-member' role
+            # Step 1: Create/update user with display name
             try:
-                client.upsert_users([
+                client.upsert_users(
                     UserRequest(
                         id=clean_user_id,
-                        role="call-member",
-                        name=f"Guest {clean_user_id}",
+                        name=display_name,
+                        role="guest"
                     )
-                ])
+                )
             except Exception as e:
                 print(f"Error registering guest user: {str(e)}")
-                raise
 
-            # Generate token for the guest
-            guest_permissions = {
-                "permissions": ["join-call", "send-audio", "send-video", "screenshare"],
-                "call_permissions": [
-                    "send-audio",
-                    "send-video",
-                    "screenshare",
-                    "join-call"
-                ],
-                "role": "call-member"
-            }
-            exp = int(time.time()) + (24 * 60 * 60)
-            token = client.create_token(clean_user_id, exp=exp, **guest_permissions)
+            # Step 2: Generate token
+            exp = 24 * 3600
+            token = client.create_token(user_id=clean_user_id, expiration=exp)
+
+            # Step 3: Add to call as member
+            try:
+                call = client.video.call("default", room_id)
+                call.update_call_members(
+                    update_members=[
+                        MemberRequest(user_id=clean_user_id)
+                    ]
+                )
+            except Exception as e:
+                print(f"Error adding member to call: {e}")
 
             return Response({
                 "token": token,
                 "call_cid": f"default:{room_id}",
                 "room_id": room_id,
-                "role": "call-member"
+                "display_name": display_name
             })
+            
         except Exception as e:
-            print(f"Error generating guest token: {str(e)}")
             return Response(
                 {"error": f"Failed to generate guest token: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+            
 class JoinMeetingView(APIView):
     def get(self, request, meeting_id):
         try:
@@ -179,7 +159,8 @@ class ScheduleInterviewView(APIView):
                 interviewer=request.user,
                 candidate_email=email,
                 scheduled_time=meeting_date,
-                guest_user_id=guest_user_id  # Store the guest user ID
+                # guest_id=guest_id  # Store the guest user ID
+                status='scheduled'
             )
             
             # Generate the meeting link for HR
@@ -189,7 +170,7 @@ class ScheduleInterviewView(APIView):
                 "message": "Interview scheduled successfully", 
                 "meeting_link": meeting_link,
                 "meeting_id": room_name,
-                "guest_user_id": guest_user_id  # Return the guest user ID for reference
+                # "guest_id": guest_id  # Return the guest user ID for reference
             }, status=status.HTTP_201_CREATED)
         
         except Exception as e:
@@ -202,23 +183,25 @@ class SendInvitationView(APIView):
     def post(self, request):
         email = request.data.get('email')
         meeting_id = request.data.get('meetingId')
+        scheduled_time = request.data.get('scheduledTime')
         
         try:
+            # Generate unique guest ID
+            guest_id = f"guest_{uuid.uuid4()}"
             interview = Interview.objects.get(meeting_id=meeting_id)
+            interview.guest_id = guest_id
+            interview.save()
             
-            # Ensure the guest user ID exists
-            if not interview.guest_user_id:
-                return Response({"error": "Guest user ID is missing"}, status=status.HTTP_400_BAD_REQUEST)
+            # Construct guest meeting link with guest ID
+            guest_meeting_link = f"{settings.FRONTEND_URL}/guest/interview/{meeting_id}?guest_id={guest_id}"
             
-            # Construct the guest meeting link with the guest user ID
-            guest_meeting_link = f"{settings.FRONTEND_URL}/guest/interview/{interview.meeting_id}?guest_id={interview.guest_user_id}"
-            
-            # Email subject and body
-            email_subject = "Interview Schedule"
+            email_subject = "Interview Invitation"
             email_body = f"""Dear Candidate,
-You have been scheduled for a remote interview on {interview.scheduled_time}.
-Please join the meeting using the following link:
+            
+You have been scheduled for a remote interview on {scheduled_time}.
+Please join using this link:
 {guest_meeting_link}
+
 Best regards,
 HR Team"""
             
@@ -232,9 +215,18 @@ HR Team"""
             
             return Response({
                 "message": "Invitation sent successfully",
-                "meeting_link": guest_meeting_link
-            }, status=status.HTTP_200_OK)
-        
+                "meeting_link": guest_meeting_link,
+                "guest_id": guest_id
+            })
+            
         except Interview.DoesNotExist:
-            return Response({"error": "Interview not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Interview not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {"error": f"Failed to send invitation: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
         

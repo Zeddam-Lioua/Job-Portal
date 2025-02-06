@@ -2,54 +2,59 @@ import React, { useEffect, useState } from "react";
 import streamService from "../../services/stream.service";
 import { StreamVideoClient } from "@stream-io/video-react-sdk";
 import { STREAM_API_KEY } from "../../config/stream";
-const VideoProvider = ({ children, userId, roomId }) => {
+
+const VideoProvider = ({ children, userId, roomId, isGuest = false }) => {
   const [token, setToken] = useState(null);
   const [client, setClient] = useState(null);
-  const [call, setCall] = useState(null); // Store the call instance in state
+  const [call, setCall] = useState(null);
   const [error, setError] = useState(null);
-  const isGuest = userId.startsWith("guest_");
+
   useEffect(() => {
     let tokenRefreshInterval;
+
     const initCall = async (videoClient) => {
       const callInstance = videoClient.call("default", roomId);
       try {
-        // Add the host as a member and create the call
-        await callInstance.create({
-          members: [
-            { user_id: userId, role: isGuest ? "call_member" : "call_host" },
-          ],
-        });
-        // If the guest user ID is known, explicitly add the guest as a member
-        const guestUserId = new URLSearchParams(window.location.search).get(
-          "guest_id"
-        );
-        if (guestUserId && !isGuest) {
-          await callInstance.updateCallMembers({
-            update_members: [{ user_id: guestUserId, role: "call_member" }],
+        if (!isGuest) {
+          // Host creates the call and adds guest member
+          await callInstance.create({
+            members: [{ user_id: userId, role: "call_host" }],
           });
+
+          // Add guest if guest_id is in URL
+          const guestId = new URLSearchParams(window.location.search).get(
+            "guest_id"
+          );
+          if (guestId) {
+            await callInstance.updateCallMembers({
+              update_members: [{ user_id: guestId, role: "guest" }],
+            });
+          }
         }
-        // Join the call with appropriate role
+
+        // Join call with appropriate role
         await callInstance.join({
           create: false,
           ring: true,
-          data: { role: isGuest ? "call_member" : "call_host" },
+          data: { role: isGuest ? "guest" : "call_host" },
         });
-        setCall(callInstance); // Store the call instance in state
+
         return callInstance;
       } catch (err) {
         console.error("Error during call initialization:", err);
-        setError("Failed to initialize the call");
+        setError("Failed to initialize call");
       }
     };
+
     const initToken = async () => {
       try {
         console.log("Initializing token for user:", userId);
-        const cleanUserId = userId.replace("@", "").replace(".", " ");
+        const cleanUserId = userId.replace("@", "_").replace(".", "_");
         const { token: streamToken } = await streamService.generateToken(
           cleanUserId,
           roomId
         );
-        console.log("Token received:", streamToken);
+
         const videoClient = StreamVideoClient.getOrCreateInstance({
           apiKey: STREAM_API_KEY,
           user: {
@@ -58,9 +63,12 @@ const VideoProvider = ({ children, userId, roomId }) => {
           },
           token: streamToken,
         });
+
         const callInstance = await initCall(videoClient);
         setToken(streamToken);
         setClient(videoClient);
+        setCall(callInstance);
+
         if (isGuest) {
           tokenRefreshInterval = setInterval(async () => {
             try {
@@ -78,10 +86,11 @@ const VideoProvider = ({ children, userId, roomId }) => {
         console.error("Token generation error:", err);
       }
     };
+
     initToken();
+
     return () => {
       if (tokenRefreshInterval) clearInterval(tokenRefreshInterval);
-      // Ensure the call exists before attempting to leave
       if (call) {
         call
           .leave()
@@ -90,8 +99,11 @@ const VideoProvider = ({ children, userId, roomId }) => {
       if (client) client.disconnectUser();
     };
   }, [userId, roomId, isGuest]);
+
   if (error) return <div>Error: {error}</div>;
   if (!token || !client || !call) return <div>Loading...</div>;
+
   return children({ client, call });
 };
+
 export default VideoProvider;

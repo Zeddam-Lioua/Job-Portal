@@ -97,6 +97,12 @@ const Interviews = () => {
     } catch (err) {
       setError("Failed to schedule interview");
     }
+
+    console.log("Sending schedule data:", {
+      email: meetingData.candidateEmail,
+      meetingDate: meetingData.scheduledTime,
+      roomName: roomName,
+    });
   };
 
   const handleJoinMeeting = (meetingId) => {

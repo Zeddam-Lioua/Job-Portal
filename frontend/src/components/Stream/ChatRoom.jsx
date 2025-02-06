@@ -10,21 +10,25 @@ import { StreamChat } from "stream-chat";
 import { STREAM_API_KEY } from "../../config/stream";
 import streamService from "../../services/stream.service";
 import "./ChatRoom.css";
+
 const ChatRoom = ({ userId, channelId }) => {
   const [client, setClient] = useState(null);
   const [channel, setChannel] = useState(null);
   const [error, setError] = useState(null);
   const chatClientRef = useRef(null);
+
   useEffect(() => {
     const initChat = async () => {
       try {
         // Only initialize if we don't have a client or if user changed
         if (!chatClientRef.current || chatClientRef.current.userID !== userId) {
-          const cleanUserId = userId.replace("@", " ").replace(".", " ");
+          const cleanUserId = userId.replace("@", "_").replace(".", "_");
           const { token } = await streamService.generateToken(cleanUserId);
+
           if (!chatClientRef.current) {
             chatClientRef.current = StreamChat.getInstance(STREAM_API_KEY);
           }
+
           await chatClientRef.current.connectUser(
             {
               id: cleanUserId,
@@ -32,8 +36,10 @@ const ChatRoom = ({ userId, channelId }) => {
             },
             token
           );
+
           const channel = chatClientRef.current.channel("messaging", channelId);
           await channel.watch();
+
           setClient(chatClientRef.current);
           setChannel(channel);
         }
@@ -42,7 +48,9 @@ const ChatRoom = ({ userId, channelId }) => {
         setError(error.message);
       }
     };
+
     initChat();
+
     return () => {
       const cleanup = async () => {
         if (chatClientRef.current) {
@@ -54,8 +62,10 @@ const ChatRoom = ({ userId, channelId }) => {
       cleanup();
     };
   }, [userId, channelId]);
+
   if (error) return <div className="error">Error: {error}</div>;
   if (!client || !channel) return <div className="loading">Loading...</div>;
+
   return (
     <div className="chat-wrapper">
       <div className="chat-container">
@@ -70,4 +80,5 @@ const ChatRoom = ({ userId, channelId }) => {
     </div>
   );
 };
+
 export default ChatRoom;

@@ -1,36 +1,50 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import VideoCall from "./VideoCall";
-import { v4 as uuidv4 } from "uuid";
+import GuestForm from "./GuestForm";
 
 const GuestInterview = () => {
   const { roomId } = useParams();
+  const location = useLocation();
   const [error, setError] = useState(null);
-  const guestUserId = `guest_${uuidv4()}`; // Generate unique guest ID
+  const [loading, setLoading] = useState(true);
+  const [guestInfo, setGuestInfo] = useState(null);
+  const guestId = new URLSearchParams(location.search).get("guest_id");
 
   useEffect(() => {
-    // Verify interview exists
     const verifyInterview = async () => {
       try {
         const response = await fetch(`/api/interviews/join/${roomId}`);
         if (!response.ok) {
           throw new Error("Interview not found");
         }
+        setLoading(false);
       } catch (err) {
         setError("Unable to join interview");
+        setLoading(false);
       }
     };
 
     verifyInterview();
   }, [roomId]);
 
-  if (error) {
-    return <div className="error-message">{error}</div>;
-  }
+  const handleGuestSubmit = (info) => {
+    setGuestInfo(info);
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+  if (!guestId) return <div>Invalid invitation link</div>;
+  if (!guestInfo) return <GuestForm onSubmit={handleGuestSubmit} />;
 
   return (
     <div className="guest-interview">
-      <VideoCall userId={guestUserId} roomId={roomId} isGuest={true} />
+      <VideoCall
+        userId={guestId}
+        roomId={roomId}
+        isGuest={true}
+        guestInfo={guestInfo}
+      />
     </div>
   );
 };
