@@ -16,7 +16,9 @@ import JobPostDetail from "./JobPostDetail";
 import Settings from "./Settings";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 import hrService from "../../services/hr.service";
-import Interviews from "./Interviews";
+import InterviewDashboard from "./Interviews/InterviewDashboard";
+import UpcomingMeetingsPage from "./Interviews/Pages/UpcomingMeetingsPage";
+import RecordingsPage from "./Interviews/Pages/RecordingsPage";
 import InterviewRoom from "../Stream/InterviewRoom";
 import Profile from "../Profile/Profile";
 import Sidebar from "../layout/Sidebar";
@@ -72,11 +74,13 @@ const HRDashboard = () => {
           <Route path="active-posts" element={<JobPosts />} />
           <Route path="active-posts/:id" element={<JobPostDetail />} />
           <Route path="analytics" element={<AnalyticsDashboard />} />
-          <Route path="interviews" element={<Interviews />} />
+          <Route path="interviews" element={<InterviewDashboard />} />
           <Route path="/" element={<Navigate to="analytics" replace />} />
           <Route path="interview/:roomName" element={<InterviewRoom />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="team" element={<Team />} />
+          <Route path="upcoming-meetings" element={<UpcomingMeetingsPage />} />
+          <Route path="recordings" element={<RecordingsPage />} />
         </Routes>
       </div>
     </>

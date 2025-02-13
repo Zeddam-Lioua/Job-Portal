@@ -17,7 +17,6 @@ const VideoCall = ({ userId, roomId, isGuest = false }) => {
   useEffect(() => {
     return () => {
       console.log("Cleaning up VideoCall...");
-      // No need to explicitly leave the call here since VideoProvider handles it
     };
   }, []);
 

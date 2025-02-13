@@ -79,13 +79,20 @@ const getTeamMembers = () => {
   return api.get("/team/");
 };
 
+const createInstantMeeting = (data) => {
+  return api.post("/create/", data);
+};
+
 const scheduleInterview = (data) => {
-  console.log("Sending interview data:", data);
   return api.post("/schedule/", data);
 };
 
 const sendInterviewInvitation = (data) => {
   return api.post("/send-invitation/", data);
+};
+
+const sendScheduleNotification = (data) => {
+  return api.post("/notify-schedule/", data);
 };
 
 const getInterviewRecordings = () => {
@@ -102,6 +109,10 @@ const getPersonalRoom = () => {
 
 const joinMeeting = (meetingId) => {
   return api.get(`/join/${meetingId}`);
+};
+
+const cancelMeeting = (meetingId) => {
+  return api.post(`/cancel-meeting/${meetingId}/`);
 };
 
 const hrService = {
@@ -123,12 +134,15 @@ const hrService = {
   updateResumeStatus,
   getApplicants,
   getTeamMembers,
+  createInstantMeeting,
   scheduleInterview,
   getUpcomingMeetings,
   sendInterviewInvitation,
+  sendScheduleNotification,
   getInterviewRecordings,
   joinMeeting,
   getPersonalRoom,
+  cancelMeeting,
 };
 
 export default hrService;

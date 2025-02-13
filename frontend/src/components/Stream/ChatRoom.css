@@ -1,80 +1,77 @@
 .chat-wrapper {
-  height: 100vh;
-  width: 100%;
-  background: #f5f5f5;
-  padding: 20px;
+  height: 100%; /* Ensure full height */
+  width: 100%; /* Ensure full width */
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-container {
-  max-width: 1200px;
-  height: calc(100vh - 40px);
-  margin: 0 auto;
+  height: 100%; /* Ensure full height */
+  display: flex;
+  flex-direction: column;
   background: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
 }
 
-.str-chat__header {
-  background: #006cff;
-  color: white;
-  padding: 15px;
-  font-weight: bold;
+.str-chat__container {
+  height: 100%; /* Ensure full height */
+  display: flex;
+  flex-direction: column;
 }
 
-.str-chat__message-list {
-  padding: 20px;
-  background: #fff;
+.str-chat__list {
+  flex: 1; /* Allow the message list to grow and fill available space */
+  overflow-y: auto; /* Enable scrolling for messages */
 }
 
-.str-chat__message-data {
-  margin-bottom: 12px;
+.str-chat__input-flat-wrapper {
+  flex-shrink: 0; /* Prevent the input from shrinking */
 }
-
-.str-chat__message-text {
-  background: #f0f2f5;
-  padding: 8px 12px;
-  border-radius: 18px;
-  display: inline-block;
-  max-width: 70%;
-}
-
-.str-chat__message--me .str-chat__message-text {
-  background: #006cff;
-  color: white;
-}
-
-.str-chat__input {
-  border-top: 1px solid #eee;
-  padding: 15px;
+/* Header styling */
+.str-chat__header-livestream {
+  height: auto;
+  min-height: 60px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  z-index: 1;
 }
 
 .str-chat__input-flat {
-  background: #f5f5f5;
-  border-radius: 20px;
-  padding: 10px;
-}
-
-.str-chat__send-button {
-  background: #006cff;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
+  min-height: 45px;
+  background: #f8f9fa;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-left: 8px;
 }
 
-.loading,
-.error {
-  height: 100vh;
+/* File upload and emoji button styling */
+.str-chat__input-flat--buttons {
+  display: flex;
+  gap: 8px;
+  padding: 0 8px;
+}
+
+.str-chat__input-flat--button {
+  color: #6c757d;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.str-chat__input-flat--button:hover {
+  color: #007bff;
+}
+
+/* Online users list styling */
+.str-chat__header-livestream-left {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 16px;
+  gap: 8px;
 }
 
-.error {
-  color: #dc3545;
+.str-chat__header-livestream-left--members {
+  display: flex;
+  align-items: center;
+}
+
+.str-chat__avatar {
+  margin-right: 4px;
 }

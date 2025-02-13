@@ -1,0 +1,57 @@
+/* Modal Styling */
+.theme-responsive-modal .modal-content {
+  background-color: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.theme-responsive-modal .modal-header,
+.theme-responsive-modal .modal-footer {
+  background-color: var(--surface);
+  border-color: var(--border);
+}
+
+.theme-responsive-modal .modal-title {
+  color: var(--text);
+}
+
+.theme-responsive-modal .form-control,
+.theme-responsive-modal .form-select {
+  background-color: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.theme-responsive-modal .form-control:focus,
+.theme-responsive-modal .form-select:focus {
+  background-color: var(--surface);
+  border-color: var(--primary);
+  color: var(--text);
+  box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+}
+
+.theme-responsive-modal .form-control::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Card Styling */
+.theme-responsive-card {
+  background-color: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+  height: 100%;
+  transition: all 0.3s ease;
+}
+
+.theme-responsive-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.theme-responsive-card .card-title {
+  color: var(--text);
+}
+
+.theme-responsive-card .card-text {
+  color: var(--text-secondary);
+}

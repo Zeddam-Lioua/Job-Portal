@@ -1,0 +1,11 @@
+{% extends "email/base-email-template.html" %}
+
+{% block title %}Interview Cancelled{% endblock %}
+
+{% block content %}
+<h2>Interview Cancellation Notice</h2>
+<p>Dear Candidate,</p>
+<p>We regret to inform you that your interview scheduled for <strong>{{ scheduled_time }}</strong> has been cancelled.</p>
+<p>We apologize for any inconvenience this may cause.</p>
+<p>Best regards,<br>HR Team</p>
+{% endblock %}

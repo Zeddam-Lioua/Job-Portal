@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { formatStreamUserId } from "../../utils/streamUtils";
-import { Container, Button, Row, Col } from "react-bootstrap";
 import VideoCall from "./VideoCall";
 import ChatRoom from "./ChatRoom";
+import "./InterviewRoom.css";
 
 const InterviewRoom = () => {
   const { roomName } = useParams();
@@ -16,17 +16,14 @@ const InterviewRoom = () => {
   }
 
   return (
-    <Container fluid className="interview-room p-0">
-      <Row className="g-0">
-        <Col>
-          <VideoCall userId={currentUserId} roomId={roomName} />
-        </Col>
-
-        <Col md={3}>
-          <ChatRoom userId={currentUserId} channelId={roomName} />
-        </Col>
-      </Row>
-    </Container>
+    <div className="interview-room">
+      <div className="video-section">
+        <VideoCall userId={currentUserId} roomId={roomName} />
+      </div>
+      <div className="chat-section">
+        <ChatRoom userId={currentUserId} roomId={roomName} />
+      </div>
+    </div>
   );
 };
 

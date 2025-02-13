@@ -1,0 +1,11 @@
+{% extends "email/base-email-template.html" %}
+
+{% block title %}Interview Invitation{% endblock %}
+
+{% block content %}
+<h2>Interview Invitation</h2>
+<p>Dear Candidate,</p>
+<p>You have been scheduled for a remote interview on <strong>{{ scheduled_time }}</strong>.</p>
+<p>Please join using this link: <a href="{{ meeting_link }}">Join Interview</a></p>
+<p>Best regards,<br>HR Team</p>
+{% endblock %}

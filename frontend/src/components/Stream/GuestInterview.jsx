@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useLocation } from "react-router-dom";
 import VideoCall from "./VideoCall";
 import GuestForm from "./GuestForm";
+import ChatRoom from "./ChatRoom";
+import "./InterviewRoom.css";
 
 const GuestInterview = () => {
   const { roomId } = useParams();
@@ -24,7 +26,6 @@ const GuestInterview = () => {
         setLoading(false);
       }
     };
-
     verifyInterview();
   }, [roomId]);
 
@@ -38,13 +39,27 @@ const GuestInterview = () => {
   if (!guestInfo) return <GuestForm onSubmit={handleGuestSubmit} />;
 
   return (
-    <div className="guest-interview">
-      <VideoCall
-        userId={guestId}
-        roomId={roomId}
-        isGuest={true}
-        guestInfo={guestInfo}
-      />
+    <div className="interview-room">
+      <div className="video-section">
+        <VideoCall
+          userId={guestId}
+          roomId={roomId}
+          isGuest={true}
+          guestInfo={guestInfo}
+        />
+      </div>
+      <div className="chat-section">
+        {guestInfo ? (
+          <ChatRoom
+            userId={guestId}
+            roomId={roomId}
+            isGuest={true}
+            guestInfo={guestInfo}
+          />
+        ) : (
+          <div>Loading chat...</div>
+        )}
+      </div>
     </div>
   );
 };

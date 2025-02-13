@@ -1,0 +1,11 @@
+{% extends "email/base-email-template.html" %}
+
+{% block title %}Interview Scheduled{% endblock %}
+
+{% block content %}
+<h2>Interview Scheduled</h2>
+<p>Dear Candidate,</p>
+<p>Your interview has been scheduled for <strong>{{ scheduled_time }}</strong>.</p>
+<p>You will receive another email with the meeting link closer to the interview time.</p>
+<p>Best regards,<br>HR Team</p>
+{% endblock %}
