@@ -1,49 +1,22 @@
 .video-container {
   height: 100vh;
-  background: #0f172a;
+  width: 100%;
   position: relative;
+  overflow: hidden;
 }
 
-.video-main {
-  height: 100%;
-  position: relative;
+button {
+  color: white;
+  cursor: pointer;
 }
 
-.video-controls {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+.controls-container {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
   display: flex;
-  gap: 12px;
-  padding: 12px 16px;
-  background: rgba(15, 23, 42, 0.8);
-  border-radius: 12px;
-  backdrop-filter: blur(8px);
-  z-index: 100;
-}
-
-/* Override Stream's default styles */
-.str-video__button {
-  display: flex !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  color: white !important; /* Ensure icons are visible */
-  background: rgba(255, 255, 255, 0.1) !important;
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 8px !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin: 0 4px !important;
-}
-
-.str-video__button:hover {
-  background: rgba(255, 255, 255, 0.2) !important;
-}
-
-.str-video__button svg {
-  fill: white !important; /* Ensure SVG icons are visible */
-  width: 20px !important;
-  height: 20px !important;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.5);
 }

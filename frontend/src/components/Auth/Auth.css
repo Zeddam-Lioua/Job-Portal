@@ -136,3 +136,31 @@
   background: url("../../assets/carriers/ooredoo.png") no-repeat 8px center;
   background-size: 24px;
 }
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #6c757d;
+}
+
+.separator::before,
+.separator::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.separator::before {
+  margin-right: 1em;
+}
+
+.separator::after {
+  margin-left: 1em;
+}
+
+.google-login-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}

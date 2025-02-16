@@ -37,18 +37,30 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'channels',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    # Third party apps
+    'channels',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
+    'djoser',
+    # Local apps
     'jobs',
     'users',
     'interviews',
-    'rest_framework',
-    'rest_framework_simplejwt.token_blacklist',
-    'corsheaders',
-    
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -58,7 +70,8 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'backend.middleware.XFrameOptionsMiddleware',  # Ensure this is at the end
+    'backend.middleware.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 # Allow all origins to embed the site in an iframe
@@ -108,8 +121,11 @@ DATABASES = {
 AUTH_USER_MODEL = 'users.CustomUser'
 
 AUTHENTICATION_BACKENDS = [
+    'allauth.account.auth_backends.AuthenticationBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -164,6 +180,8 @@ if DEBUG:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_HEADERS = ['*']
@@ -191,7 +209,16 @@ CHANNEL_LAYERS = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
     ),
+}
+
+REST_AUTH = {
+    'USE_JWT': True,
+    'JWT_AUTH_COOKIE': 'my-app-auth',
+    'JWT_AUTH_REFRESH_COOKIE': 'my-refresh-token',
+    'JWT_AUTH_HTTPONLY': False,
 }
 
 CSRF_TRUSTED_ORIGINS = [
@@ -247,6 +274,36 @@ EMAIL_HOST_PASSWORD = 'pwan qhss xjph aolb'
 DEFAULT_FROM_EMAIL = 'liwaazeddam@gmail.com'
 EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = 20
+
+# Add these updated allauth settings
+ACCOUNT_LOGIN_METHODS = {'email'}  # New setting replacing ACCOUNT_AUTHENTICATION_METHOD
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_USERNAME_REQUIRED = False
+
+# Keep your existing SOCIALACCOUNT_PROVIDERS settings
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': '190055214049-gojlcmlfhpam7bg8sfvjelevfa30dl8d.apps.googleusercontent.com',
+            'secret': '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',
+            'key': ''
+        },
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}
+
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_EMAIL_REQUIRED = False
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
 
 FRONTEND_URL = 'http://localhost:5173'
 

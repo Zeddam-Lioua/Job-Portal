@@ -12,6 +12,31 @@ const login = async (email, password) => {
   return response.data;
 };
 
+const googleLogin = async (credential) => {
+  try {
+    const response = await axios.post(
+      API_URL + "auth/google/login/",
+      {
+        access_token: credential,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.access) {
+      localStorage.setItem("accessToken", response.data.access);
+      localStorage.setItem("user", JSON.stringify(response.data));
+    }
+    return response;
+  } catch (error) {
+    console.error("Google login error:", error);
+    throw error;
+  }
+};
+
 const logout = () => {
   localStorage.removeItem("user");
   clearRefreshTokenInterval();
@@ -157,6 +182,7 @@ const sendPasswordChangeEmail = async (email) => {
 
 export default {
   login,
+  googleLogin,
   logout,
   getCurrentUser,
   refreshToken,

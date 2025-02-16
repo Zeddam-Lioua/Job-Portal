@@ -9,16 +9,22 @@ const VideoProvider = ({ children, userId, roomId, isGuest = false }) => {
   const [client, setClient] = useState(null);
   const [call, setCall] = useState(null);
   const [error, setError] = useState(null);
-
   const { user } = useAuth();
 
   useEffect(() => {
     let tokenRefreshInterval;
+    let isSubscribed = true; // Track subscription state to prevent race conditions
 
     const initToken = async () => {
-      try {
-        const cleanUserId = userId.replace("@", "_").replace(".", "_");
+      if (!isSubscribed) return;
 
+      try {
+        // Clean up any existing client connection before initializing a new one
+        if (client) {
+          await client.disconnectUser();
+        }
+
+        const cleanUserId = userId.replace("@", "_").replace(".", "_");
         let firstName, lastName;
 
         if (isGuest) {
@@ -33,6 +39,7 @@ const VideoProvider = ({ children, userId, roomId, isGuest = false }) => {
           lastName = user?.last_name || "";
         }
 
+        // Generate the token
         const { token: streamToken } = await streamService.generateToken(
           cleanUserId,
           roomId,
@@ -40,7 +47,9 @@ const VideoProvider = ({ children, userId, roomId, isGuest = false }) => {
           lastName
         );
 
-        // Use getOrCreateInstance to avoid creating multiple instances
+        if (!isSubscribed) return;
+
+        // Initialize the video client
         const videoClient = StreamVideoClient.getOrCreateInstance({
           apiKey: STREAM_API_KEY,
           user: {
@@ -50,24 +59,34 @@ const VideoProvider = ({ children, userId, roomId, isGuest = false }) => {
           token: streamToken,
         });
 
-        const callInstance = await initCall(videoClient);
-        setToken(streamToken);
-        setClient(videoClient);
-        setCall(callInstance);
+        if (!isSubscribed) return;
 
+        setClient(videoClient);
+
+        // Initialize the call
+        const callInstance = await initCall(videoClient);
+        if (!isSubscribed) return;
+
+        setCall(callInstance);
+        setToken(streamToken);
+
+        // Set up token refresh for guests
         if (isGuest) {
           tokenRefreshInterval = setInterval(async () => {
             try {
               const { token: refreshedToken } =
                 await streamService.generateToken(cleanUserId, roomId);
+              if (!isSubscribed) return;
+
               setToken(refreshedToken);
               videoClient.setToken(refreshedToken);
             } catch (err) {
               console.error("Token refresh failed:", err);
             }
-          }, 23 * 60 * 60 * 1000);
+          }, 23 * 60 * 60 * 1000); // Refresh every 23 hours
         }
       } catch (err) {
+        if (!isSubscribed) return;
         setError(err.message);
         console.error("Token generation error:", err);
       }
@@ -75,15 +94,14 @@ const VideoProvider = ({ children, userId, roomId, isGuest = false }) => {
 
     const initCall = async (videoClient) => {
       const callInstance = videoClient.call("default", roomId);
+
       try {
-        // Step 1: Create or join the call
         if (!isGuest) {
-          // Host creates the call and adds themselves as a member
+          // Host creates the call and joins as an admin
           await callInstance.create({
             members: [{ user_id: userId, role: "admin" }],
           });
 
-          // Host explicitly joins the call
           await callInstance.join({
             create: false,
             ring: false, // No ringing for the host
@@ -101,9 +119,8 @@ const VideoProvider = ({ children, userId, roomId, isGuest = false }) => {
           }
         } else {
           // Guest joins the call
-          // Check if the call exists before joining
           try {
-            await callInstance.get();
+            await callInstance.get(); // Check if the call exists
           } catch (err) {
             console.error(
               "Call does not exist yet. Waiting for host to create the call..."
@@ -116,7 +133,7 @@ const VideoProvider = ({ children, userId, roomId, isGuest = false }) => {
 
           await callInstance.join({
             create: false,
-            ring: true,
+            ring: true, // Ringing for guests
             data: { role: "guest" },
           });
         }
@@ -131,12 +148,16 @@ const VideoProvider = ({ children, userId, roomId, isGuest = false }) => {
     initToken();
 
     return () => {
+      isSubscribed = false; // Mark as unsubscribed to prevent further updates
+
       if (tokenRefreshInterval) clearInterval(tokenRefreshInterval);
+
       if (call) {
         call
           .leave()
           .catch((err) => console.error("Failed to leave call:", err));
       }
+
       if (client) {
         client
           .disconnectUser()
@@ -147,6 +168,7 @@ const VideoProvider = ({ children, userId, roomId, isGuest = false }) => {
 
   if (error) return <div>Error: {error}</div>;
   if (!token || !client || !call) return <div>Loading...</div>;
+
   return children({ client, call });
 };
 

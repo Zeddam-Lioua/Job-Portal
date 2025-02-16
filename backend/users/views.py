@@ -1,7 +1,7 @@
 from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
-from rest_framework import status, permissions, generics
+from rest_framework import status, permissions
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -13,9 +13,11 @@ from django.core.mail import send_mail
 from django.conf import settings
 import logging
 from .serializers import CustomUserSerializer
-
-
 from backend.utils import DevelopmentSMSService
+
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.registration.views import SocialLoginView
 
 logger = logging.getLogger(__name__)
 
@@ -308,3 +310,17 @@ class TeamMembersView(APIView):
                 user['profile_picture'] = settings.MEDIA_URL + str(user['profile_picture'])
         
         return Response(users)
+    
+class GoogleLoginView(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    client_class = OAuth2Client
+    callback_url = 'http://localhost:5173'
+
+    def get_response(self):
+        response = super().get_response()
+        if self.user:
+            response.data.update({
+                'user_type': self.user.user_type,
+                'email': self.user.email,
+            })
+        return response

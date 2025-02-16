@@ -15,4 +15,5 @@ urlpatterns = [
     path("user/", UserInfoAPIView.as_view(), name="user-profile"),
     path('send-password-change-email/', SendPasswordChangeEmailView.as_view(), name='send-password-change-email'),
     path('team/', TeamMembersView.as_view(), name='team-members'),
+    path('auth/google/login/', GoogleLoginView.as_view(), name='google_login'),
 ]
