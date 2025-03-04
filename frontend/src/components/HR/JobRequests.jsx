@@ -84,10 +84,11 @@ const JobRequests = () => {
     .filter(
       (request) =>
         (filter === "all" || request.status === filter) &&
-        (request.field.toLowerCase().includes(search.toLowerCase()) ||
+        (request.field?.toLowerCase().includes(search.toLowerCase()) ||
           request.district_manager_name
-            .toLowerCase()
-            .includes(search.toLowerCase()))
+            ?.toLowerCase()
+            .includes(search.toLowerCase()) ||
+          "") // Add fallback for undefined values
     )
     .sort((a, b) => {
       if (sortBy === "newest") {
@@ -168,7 +169,7 @@ const JobRequests = () => {
         <Row xs={1} md={2} lg={3} className="g-4">
           {filteredRequests.map((request) => (
             <Col key={request.id}>
-              <Card className="job-request-card h-100">
+              <Card className="job-request-card h-100" data-id={request.id}>
                 <Card.Body>
                   <div className="d-flex justify-content-between align-items-start mb-3">
                     <div>

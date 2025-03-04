@@ -2,8 +2,29 @@
   background: linear-gradient(135deg, #141e30 0%, #243b55 100%);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  padding: 1rem 0;
+  padding: 0.5rem 0;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.nav-logo {
+  width: 100px;
+  height: auto;
+  transition: transform 0.3s ease;
+  fill: currentColor;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-logo {
+  transition: transform 0.3s ease;
+}
+
+.brand-logo:hover {
+  transform: scale(1.05);
 }
 
 .brand-text {

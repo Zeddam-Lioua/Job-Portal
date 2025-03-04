@@ -3,14 +3,18 @@ import { Navbar, Nav, Container, Button } from "react-bootstrap";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faHome,
   faSignInAlt,
   faUserPlus,
   faUser,
   faSignOutAlt,
+  faBriefcase,
+  faGraduationCap,
+  faInfoCircle,
+  faEnvelope,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../../context/AuthContext";
 import "./Navbar.css";
+import NavLogo from "./NavLogo";
 
 const Navigation = () => {
   const { isAuthenticated, user, logout } = useAuth();
@@ -21,6 +25,18 @@ const Navigation = () => {
     logout();
     navigate("/admin/login");
   };
+
+  // Early return conditions - Hide navbar for these cases
+  if (
+    // Hide for HR dashboard
+    (user?.user_type === "human_resources" &&
+      location.pathname.includes("/admin/hr/dashboard")) ||
+    // Hide for guest interview and interview ended pages
+    location.pathname.includes("/guest/interview/") ||
+    location.pathname.includes("/interview-ended")
+  ) {
+    return null;
+  }
 
   const renderAuthLinks = () => {
     if (isAuthenticated) {
@@ -49,20 +65,13 @@ const Navigation = () => {
       );
     } else if (location.pathname.startsWith("/admin")) {
       return (
+        // Login/Register links for admin section
         <>
-          <Nav.Link
-            as={Link}
-            to="/admin/login"
-            className={location.pathname === "/admin/login" ? "active" : ""}
-          >
+          <Nav.Link as={Link} to="/admin/login">
             <FontAwesomeIcon icon={faSignInAlt} className="me-2" />
             Login
           </Nav.Link>
-          <Nav.Link
-            as={Link}
-            to="/admin/register"
-            className={location.pathname === "/admin/register" ? "active" : ""}
-          >
+          <Nav.Link as={Link} to="/admin/register">
             <FontAwesomeIcon icon={faUserPlus} className="me-2" />
             Register
           </Nav.Link>
@@ -72,32 +81,44 @@ const Navigation = () => {
     return null;
   };
 
-  // Don't render navbar for HR users
-  if (
-    user?.user_type === "human_resources" &&
-    location.pathname.includes("/admin/hr/dashboard")
-  ) {
+  const renderPublicLinks = () => {
+    if (!location.pathname.startsWith("/admin")) {
+      return (
+        <>
+          <Nav.Link as={Link} to="/job-list">
+            <FontAwesomeIcon icon={faBriefcase} className="me-2" />
+            Jobs
+          </Nav.Link>
+
+          <Nav.Link as={Link} to="/career-resources">
+            <FontAwesomeIcon icon={faGraduationCap} className="me-2" />
+            Career Resources
+          </Nav.Link>
+
+          <Nav.Link as={Link} to="/about">
+            <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
+            About Us
+          </Nav.Link>
+
+          <Nav.Link as={Link} to="/contact">
+            <FontAwesomeIcon icon={faEnvelope} className="me-2" />
+            Contact
+          </Nav.Link>
+        </>
+      );
+    }
     return null;
-  }
+  };
 
   return (
     <Navbar expand="lg" className="modern-navbar" variant="dark">
       <Container>
-        <Navbar.Brand as={Link} to="/" className="brand-text">
-          Job Portal
+        <Navbar.Brand as={Link} to="/">
+          <NavLogo color="#ffffff" />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <Nav.Link
-              as={Link}
-              to="/"
-              className={location.pathname === "/" ? "active" : ""}
-            >
-              <FontAwesomeIcon icon={faHome} className="me-2" />
-              Home
-            </Nav.Link>
-          </Nav>
+          <Nav className="me-auto">{renderPublicLinks()}</Nav>
           <Nav className="ms-auto">{renderAuthLinks()}</Nav>
         </Navbar.Collapse>
       </Container>

@@ -1,6 +1,6 @@
 from django.db import models
 from users.models import CustomUser
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 
 class JobRequest(models.Model):
@@ -84,25 +84,77 @@ class JobPost(models.Model):
     def __str__(self):
         return self.field
 
-class Resume(models.Model):
-    applicant = models.CharField(max_length=255)
+class Applicant(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
     email = models.EmailField(max_length=254)
     phone = models.CharField(max_length=10, blank=True, null=True)
     job_post = models.ForeignKey(JobPost, on_delete=models.CASCADE)
     resume_file = models.FileField(upload_to='resumes/')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    STATUS_CHOICES = [
+        ('pending', 'Pending'), 
+        ('candidate', 'Candidate'),
+        ('super_candidate', 'Super Candidate'),
+        ('hired', 'Hired'), 
+        ('rejected', 'Rejected'), 
+        ('contacted', 'Contacted'),
+    ]
+    
     status = models.CharField(
         max_length=20,
-        choices=[('pending', 'Pending'), ('reviewed', 'Reviewed'), ('accepted', 'Accepted'), ('rejected', 'Rejected'), ('contacted', 'Contacted')],
+        choices=STATUS_CHOICES,
         default='pending'
     )
     hired_date = models.DateTimeField(null=True, blank=True)
 
+    class Meta:
+        ordering = ['-created_at']
+
     def __str__(self):
-        return self.applicant
+        return f"{self.first_name} {self.last_name}"
+
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
 
     def validate_pdf(file):
         if not file.name.endswith('.pdf'):
             raise ValidationError('Invalid file type. Only PDF files are allowed.')
-        
+
+class PerformanceEvaluation(models.Model):
+    applicant = models.ForeignKey(
+        Applicant, 
+        on_delete=models.CASCADE, 
+        related_name='evaluations'
+    )
+    technical_skills = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
+    communication = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
+    problem_solving = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
+    teamwork = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
+    leadership = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
+    adaptability = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
+    work_ethic = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
+    creativity = models.IntegerField(default=0, validators=[MinValueValidator(0), MaxValueValidator(10)])
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Evaluation for {self.applicant.get_full_name()}"
+
+    def get_average_score(self):
+        scores = [
+            self.technical_skills,
+            self.communication,
+            self.problem_solving,
+            self.teamwork,
+            self.leadership,
+            self.adaptability,
+            self.work_ethic,
+            self.creativity
+        ]
+        return sum(scores) / len(scores)
+    

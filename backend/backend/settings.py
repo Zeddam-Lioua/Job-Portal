@@ -37,30 +37,19 @@ INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'channels',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
-    # Third party apps
-    'channels',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'rest_framework_simplejwt.token_blacklist',
-    'corsheaders',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    'dj_rest_auth',
-    'dj_rest_auth.registration',
-    'djoser',
-    # Local apps
     'jobs',
     'users',
     'interviews',
+    'rest_framework',
+    'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
+    'djoser',
+    'social_django',
 ]
-
-SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -71,7 +60,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'backend.middleware.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware',
+    "social_django.middleware.SocialAuthExceptionMiddleware",
 ]
 
 # Allow all origins to embed the site in an iframe
@@ -91,6 +80,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "social_django.context_processors.backends",
+                "social_django.context_processors.login_redirect",
             ],
         },
     },
@@ -120,12 +111,10 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
-AUTHENTICATION_BACKENDS = [
-    'allauth.account.auth_backends.AuthenticationBackend',
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend',
-]
-
-
+)
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -180,8 +169,6 @@ if DEBUG:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-SECURE_CROSS_ORIGIN_OPENER_POLICY = None
-
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_HEADERS = ['*']
@@ -209,16 +196,7 @@ CHANNEL_LAYERS = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
     ),
-}
-
-REST_AUTH = {
-    'USE_JWT': True,
-    'JWT_AUTH_COOKIE': 'my-app-auth',
-    'JWT_AUTH_REFRESH_COOKIE': 'my-refresh-token',
-    'JWT_AUTH_HTTPONLY': False,
 }
 
 CSRF_TRUSTED_ORIGINS = [
@@ -241,7 +219,7 @@ SIMPLE_JWT = {
     "JWK_URL": None,
     "LEEWAY": 0,
 
-    "AUTH_HEADER_TYPES": ("Bearer",),
+    'AUTH_HEADER_TYPES': ('JWT',),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
@@ -275,36 +253,6 @@ DEFAULT_FROM_EMAIL = 'liwaazeddam@gmail.com'
 EMAIL_USE_SSL = False
 EMAIL_TIMEOUT = 20
 
-# Add these updated allauth settings
-ACCOUNT_LOGIN_METHODS = {'email'}  # New setting replacing ACCOUNT_AUTHENTICATION_METHOD
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
-ACCOUNT_USERNAME_REQUIRED = False
-
-# Keep your existing SOCIALACCOUNT_PROVIDERS settings
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'APP': {
-            'client_id': '190055214049-gojlcmlfhpam7bg8sfvjelevfa30dl8d.apps.googleusercontent.com',
-            'secret': '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',
-            'key': ''
-        },
-        'SCOPE': [
-            'profile',
-            'email',
-        ],
-        'AUTH_PARAMS': {
-            'access_type': 'online',
-        }
-    }
-}
-
-SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
-SOCIALACCOUNT_EMAIL_REQUIRED = False
-SOCIALACCOUNT_QUERY_EMAIL = True
-SOCIALACCOUNT_AUTO_SIGNUP = True
-
 FRONTEND_URL = 'http://localhost:5173'
 
 # Stream Configuration
@@ -314,3 +262,40 @@ STREAM_API_SECRET = 'shqghfvky66b899qqqmfnea5cam4jx5kdzf6k98xvpy68tj77q3fu7znckm
 # Connection settings
 STREAM_CONNECTION_TIMEOUT = 30000
 STREAM_RECONNECTION_DELAY = 2000
+
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'USER_CREATE_PASSWORD_RETYPE': True,
+    'SOCIAL_AUTH_TOKEN_STRATEGY': 'djoser.social.token.jwt.TokenStrategy',
+    'SOCIAL_AUTH_ALLOWED_REDIRECT_URIS': ['http://localhost:5173/oauth/google'],
+    'SERIALIZERS': {
+        'user_create': 'users.serializers.CustomUserCreateSerializer',
+        'user': 'users.serializers.CustomUserSerializer',
+        'current_user': 'users.serializers.CustomUserSerializer',
+    },
+}
+
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '190055214049-gojlcmlfhpam7bg8sfvjelevfa30dl8d.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'email',
+    'profile',
+]
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
+    'access_type': 'offline',
+    'prompt': 'consent',
+}
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)

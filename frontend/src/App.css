@@ -1,3 +1,6 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap");
+
 :root {
   --background: #ffffff;
   --surface: #f8f9fa;
@@ -8,6 +11,11 @@
   --transition-timing: 0.3s ease-in-out;
   --shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   --logo: var(--text);
+  --font-family-primary: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  font-family: var(--font-family-primary);
 }
 
 body {

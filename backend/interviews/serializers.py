@@ -1,20 +1,29 @@
 from rest_framework import serializers
 from .models import *
+from jobs.models import Applicant
 
 class InterviewSerializer(serializers.ModelSerializer):
+    candidate_name = serializers.CharField(read_only=True)
+    candidate_email = serializers.EmailField(read_only=True)
+
     class Meta:
         model = Interview
-        fields = ['meeting_id', 'candidate_email', 'scheduled_time', 'status', 'type']
-        read_only_fields = ['meeting_id', 'status']
-        extra_kwargs = {
-            'candidate_email': {'required': True},
-            'scheduled_time': {'required': True},
-            'type': {'required': True}
-        }
+        fields = [
+            'meeting_id', 
+            'candidate', 
+            'candidate_name', 
+            'candidate_email', 
+            'scheduled_time', 
+            'status', 
+            'type'
+        ]
+        read_only_fields = ['meeting_id', 'status', 'candidate_name', 'candidate_email']
 
-    def validate(self, data):
-        print("Validating data:", data)  # Debug log
-        return data
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['candidate_name'] = instance.candidate_name
+        representation['candidate_email'] = instance.candidate_email
+        return representation
 
 class RecordingSerializer(serializers.ModelSerializer):
     video_url = serializers.URLField(required=True)  # Ensure video URL is valid

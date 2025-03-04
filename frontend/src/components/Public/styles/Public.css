@@ -60,75 +60,185 @@
 /* Public.css - Enhanced styles for Job List and CV submission form */
 
 .public-page {
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 20px;
-  text-align: center;
 }
 
-.public-page h1 {
-  margin-bottom: 20px;
-}
-
-.public-page p {
-  margin-bottom: 20px;
-}
-
-.public-page a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.public-page a:hover {
-  text-decoration: underline;
-}
-
-.job-list {
-  margin: 20px;
-  padding: 10px;
-  border: 1px solid #ddd;
+.wide-card {
+  border: 1px solid #ddd; /* Grey border */
   border-radius: 8px;
-  background-color: #f9f9f9;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
 }
 
-.job-list h2 {
-  color: #333;
-  text-align: center;
-  margin-bottom: 20px;
+.wide-card:hover {
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
 }
 
-.job-list-items {
-  list-style-type: none;
-  padding: 0;
+.form-control-lg {
+  border-radius: 10px;
+  padding: 1rem;
+  font-size: 1rem;
 }
 
-.job-item {
-  padding: 15px;
-  border-bottom: 1px solid #eee;
+/* Icon styling */
+.wide-card .fa-solid {
+  font-size: 1.2rem;
 }
 
-.job-item:last-child {
-  border-bottom: none;
+/* Horizontal rule */
+.wide-card hr {
+  border-color: #eee;
 }
 
-.job-title {
-  font-size: 18px;
-  color: #333;
+/* Button alignment */
+.wide-card .btn-primary {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
 }
 
-.job-description {
-  font-size: 14px;
-  color: #666;
+@media (max-width: 768px) {
+  .wide-card .row > div {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .wide-card .fa-solid {
+    margin-bottom: 0.5rem;
+  }
 }
 
-.apply-button {
-  padding: 10px;
-  background-color: #007bff;
+/* src/components/Public/styles/Public.css */
+.text-gradient {
+  background: linear-gradient(45deg, #007bff, #00bcd4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block; /* This is important for the gradient to work */
+}
+
+.hover-card {
+  transition: transform 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-5px);
+}
+
+.icon-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(0, 123, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.resource-card {
+  transition: all 0.3s ease;
+}
+
+.resource-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.contact-form-wrapper {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+.contact-info {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-top: 2rem;
+}
+
+.contact-info .text-primary {
+  font-size: 1.2rem;
+}
+
+.contact-info icon {
   color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
 }
 
-.apply-button:hover {
-  background-color: #0056b3;
+/* Add responsive styles */
+@media (max-width: 768px) {
+  .about-content {
+    text-align: center;
+    padding: 0 1rem;
+    margin-bottom: 2rem;
+  }
+}
+
+/* Career Resources */
+
+.career-title {
+  background: linear-gradient(45deg, #007bff, #00bcd4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #007bff;
+}
+
+.learning-path-card {
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.learning-path-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.path-icon-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(0, 123, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.topics-list ul li {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  background-color: rgba(0, 123, 255, 0.05);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+}
+
+.topics-list ul li:hover {
+  background-color: rgba(0, 123, 255, 0.1);
+  transform: translateX(5px);
+}
+
+.resource-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.icon-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(0, 123, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+}
+
+.resource-card:hover .icon-circle {
+  transform: scale(1.1);
+  background: rgba(0, 123, 255, 0.2);
 }

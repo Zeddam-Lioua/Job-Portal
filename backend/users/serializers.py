@@ -1,6 +1,6 @@
 # users/serializers.py
 from rest_framework import serializers
-from .models import CustomUser
+from .models import *
 from django.contrib.auth import authenticate
 from djoser.serializers import UserCreateSerializer
 from .models import OTPVerification
@@ -108,3 +108,11 @@ class UserLoginSerializer(serializers.Serializer):
         if user and user.is_active:
             return user
         raise serializers.ValidationError("Incorrect Credentials!")    
+    
+class NotificationSerializer(serializers.ModelSerializer):
+    sender_user = CustomUserSerializer(read_only=True)  # Add this line
+    
+    class Meta:
+        model = Notification
+        fields = ['id', 'sender_type', 'sender_user', 'notification_type', 
+                 'title', 'message', 'link', 'is_read', 'created_at', 'entity_id']

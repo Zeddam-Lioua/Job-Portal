@@ -95,6 +95,32 @@ const AuthProvider = ({ children }) => {
     }
   };
 
+  const googleLogin = async (credential) => {
+    try {
+      const response = await authService.googleLogin(credential);
+      if (response?.access) {
+        // Set the token in axios default headers
+        api.defaults.headers.common["Authorization"] = `JWT ${response.access}`;
+
+        // Store tokens and user data
+        localStorage.setItem("accessToken", response.access);
+        localStorage.setItem("refreshToken", response.refresh);
+
+        if (response.user) {
+          setUser(response.user);
+          setIsAuthenticated(true);
+          localStorage.setItem("user", JSON.stringify(response.user));
+        }
+
+        return response;
+      }
+      throw new Error("No access token received");
+    } catch (error) {
+      console.error("Google login error:", error);
+      throw error;
+    }
+  };
+
   const register = async ({ email, password }) => {
     try {
       await api.post("/register/", { email, password });
@@ -125,6 +151,7 @@ const AuthProvider = ({ children }) => {
         sendPasswordChangeEmail,
         isAuthenticated,
         login,
+        googleLogin,
         register,
         logout,
         loading,

@@ -14,11 +14,14 @@ const login = async (email, password) => {
 
 const googleLogin = async (credential) => {
   try {
+    console.log(
+      "Sending credential to backend:",
+      credential.substring(0, 50) + "..."
+    );
+
     const response = await axios.post(
-      API_URL + "auth/google/login/",
-      {
-        access_token: credential,
-      },
+      `${API_URL}auth/o/google-oauth2/`,
+      { id_token: credential },
       {
         headers: {
           "Content-Type": "application/json",
@@ -27,14 +30,64 @@ const googleLogin = async (credential) => {
     );
 
     if (response.data.access) {
+      // Set auth headers for future requests
+      api.defaults.headers.common[
+        "Authorization"
+      ] = `JWT ${response.data.access}`;
+
+      // Store tokens and user data
       localStorage.setItem("accessToken", response.data.access);
-      localStorage.setItem("user", JSON.stringify(response.data));
+      localStorage.setItem("refreshToken", response.data.refresh);
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+
+      return response.data;
     }
-    return response;
+    return null;
   } catch (error) {
-    console.error("Google login error:", error);
+    console.error("Google login error:", error.response?.data || error);
     throw error;
   }
+};
+
+const googleAuth = () => {
+  const clientId =
+    "190055214049-gojlcmlfhpam7bg8sfvjelevfa30dl8d.apps.googleusercontent.com";
+  const redirectUri = "http://localhost:5173/oauth/google";
+  const state = Math.random().toString(36).substring(7);
+  localStorage.setItem("oauth_state", state);
+
+  const authUrl =
+    `https://accounts.google.com/o/oauth2/v2/auth?` +
+    `redirect_uri=${encodeURIComponent(redirectUri)}` +
+    `&prompt=consent` +
+    `&response_type=code` +
+    `&client_id=${clientId}` +
+    `&scope=${encodeURIComponent("openid email profile")}` +
+    `&access_type=offline` +
+    `&state=${state}`;
+
+  window.location.href = authUrl;
+};
+
+const verifyToken = async () => {
+  if (localStorage.getItem("access")) {
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+    const body = JSON.stringify({
+      token: localStorage.getItem("access"),
+    });
+
+    try {
+      await axios.post(API_URL + "dj-rest-auth/token/verify/", body, config);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+  return false;
 };
 
 const logout = () => {
@@ -183,6 +236,8 @@ const sendPasswordChangeEmail = async (email) => {
 export default {
   login,
   googleLogin,
+  googleAuth,
+  verifyToken,
   logout,
   getCurrentUser,
   refreshToken,

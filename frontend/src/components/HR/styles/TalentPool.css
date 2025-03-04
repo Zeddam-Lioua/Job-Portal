@@ -1,0 +1,165 @@
+.talent-pool-container {
+  background-color: var(--surface);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 2rem;
+}
+
+.talent-pool-container .row > .col-md-12 {
+  margin-bottom: 2rem;
+}
+
+.card.shadow-sm {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease;
+}
+
+card.shadow-sm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.nav-tabs .nav-link {
+  color: var(--text) !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  padding: 0.5rem 1rem;
+  margin-right: 1rem;
+  font-weight: 500;
+  position: relative;
+  transition: all var(--transition-timing);
+}
+
+.nav-tabs .nav-link:hover {
+  color: var(--primary) !important;
+  border-bottom: 2px solid var(--primary) !important;
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--primary) !important;
+  background: transparent !important;
+  border-bottom: 2px solid var(--primary) !important;
+}
+
+/* Card styling */
+.talent-card {
+  margin: 1rem 0;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+}
+
+/* Hover effect for cards */
+.talent-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.talent-card .card-title {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.talent-card .card-text {
+  color: var(--text-secondary);
+}
+
+/* Button styling */
+.talent-card .btn-outline-primary {
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+.talent-card .btn-outline-primary:hover {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.talent-card .btn-success {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.talent-card .btn-success:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.performance-scores {
+  padding: 0.5rem;
+}
+
+.score-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+.score-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text) !important;
+}
+
+.score-value {
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 4px;
+  min-width: 48px;
+  text-align: center;
+}
+
+.score-value.high {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.score-value.medium {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.score-value.low {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.skill-number {
+  color: var(--text) !important;
+  font-weight: bold;
+}
+
+.radar-container {
+  cursor: pointer;
+  transition: transform 0.2s;
+  height: 300px;
+}
+
+.radar-container canvas text,
+.radar-container text,
+.radar-container canvas tspan {
+  fill: var(--text) !important;
+  color: var(--text) !important;
+}
+
+.radar-container:hover {
+  transform: scale(1.02);
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.dropdown-toggle::after {
+  display: none !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}

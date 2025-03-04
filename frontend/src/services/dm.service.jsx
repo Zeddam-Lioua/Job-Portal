@@ -1,5 +1,5 @@
 // src/services/dm.service.jsx - API service for District Manager operations
-import api from './api';
+import api from "./api";
 
 const dmService = {
   /**
@@ -8,10 +8,10 @@ const dmService = {
    */
   getJobRequests: async () => {
     try {
-      const response = await api.get('/job-requests/'); // Ensure this endpoint exists
+      const response = await api.get("/job-requests/"); // Ensure this endpoint exists
       return response.data;
     } catch (error) {
-      console.error('Error fetching job requests:', error);
+      console.error("Error fetching job requests:", error);
       throw error;
     }
   },
@@ -23,14 +23,13 @@ const dmService = {
    */
   createJobRequest: async (requestData) => {
     try {
-      const response = await api.post('/job-requests/', requestData);
+      const response = await api.post("/job-requests/", requestData);
       return response.data;
     } catch (error) {
-      console.error('Error creating job request:', error);
+      console.error("Error creating job request:", error);
       throw error;
     }
   },
-
 
   /**
    * Delete a job request by its ID.
@@ -41,7 +40,7 @@ const dmService = {
     try {
       await api.delete(`/job-requests/${requestId}/`);
     } catch (error) {
-      console.error('Error deleting job request:', error);
+      console.error("Error deleting job request:", error);
       throw error;
     }
   },

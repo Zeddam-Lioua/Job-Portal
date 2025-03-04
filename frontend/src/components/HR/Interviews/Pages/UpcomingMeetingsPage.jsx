@@ -17,17 +17,19 @@ const UpcomingMeetingsPage = () => {
   useEffect(() => {
     const fetchMeetings = async () => {
       try {
+        console.log("Fetching meetings...");
         const response = await hrService.getUpcomingMeetings();
-        console.log("Raw response:", response);
+        console.log("Full API response:", response);
+        console.log("Response data:", response.data);
 
-        // Handle both array and object responses
-        if (Array.isArray(response.data)) {
-          setMeetings({ upcoming: response.data });
+        // Check if we have any meetings
+        if (response.data?.upcoming) {
+          console.log("Number of meetings:", response.data.upcoming.length);
+          setMeetings(response.data);
         } else {
-          setMeetings(response.data || { upcoming: [] });
+          console.log("No meetings found in response");
+          setMeetings({ upcoming: [] });
         }
-
-        console.log("Processed meetings:", meetings);
       } catch (error) {
         console.error("Failed to fetch meetings:", error);
         setMeetings({ upcoming: [] });
@@ -41,7 +43,6 @@ const UpcomingMeetingsPage = () => {
     navigate(`/admin/hr/dashboard/interview/${meeting.meeting_id}`);
   };
 
-  // Updated to show delete modal
   const handleCancelMeeting = (meeting) => {
     setSelectedMeeting(meeting);
     setShowDeleteModal(true);
@@ -79,7 +80,10 @@ const UpcomingMeetingsPage = () => {
               <Col md={6} lg={4} key={meeting.meeting_id} className="mb-4">
                 <Card className="theme-responsive-card">
                   <Card.Body>
-                    <Card.Title>{meeting.candidate_email}</Card.Title>
+                    <Card.Title>
+                      {meeting.candidate_name || "Unnamed Candidate"}
+                    </Card.Title>
+                    <Card.Text>Email: {meeting.candidate_email}</Card.Text>
                     <Card.Text>
                       Scheduled for:{" "}
                       {new Date(meeting.scheduled_time).toLocaleString()}
@@ -123,6 +127,7 @@ const UpcomingMeetingsPage = () => {
           )}
         </Row>
       </Container>
+
       <DeleteMeetingModal
         show={showDeleteModal}
         onHide={() => setShowDeleteModal(false)}

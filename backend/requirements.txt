@@ -8,3 +8,6 @@ pytz
 sqlparse
 psycopg2-binary
 python-dotenv
+djoser==2.2.0
+social-auth-app-django==5.4.0
+python-jose==3.3.0

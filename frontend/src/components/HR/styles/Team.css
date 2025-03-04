@@ -3,37 +3,37 @@
   color: var(--text);
   transition: background-color var(--transition-timing),
     color var(--transition-timing);
+  padding: 2rem;
 }
 
 .team-member-card {
   background-color: var(--surface);
-  border-color: var(--border);
+  border: 1px solid rgba(0, 0, 0, 0.08); /* Thin grey border */
   box-shadow: var(--shadow);
-  transition: background-color var(--transition-timing),
-    border-color var(--transition-timing), transform 0.2s;
-}
-
-.team-member-card:hover {
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* .profile-widget {
+  transition: all 0.3s ease;
+  height: 100%;
+  min-height: 120px;
   display: flex;
-  align-items: center;
-  padding: 15px;
-  gap: 15px;
-} */
+  border-radius: 8px; /* Optional: adds rounded corners */
+}
+
+.team-member-card .card-body {
+  padding: 1rem;
+  width: 100%;
+}
 
 .team-member__widget {
   display: flex;
   align-items: center;
-  padding: 15px;
-  gap: 15px;
+  gap: 1rem;
+  width: 100%;
+  min-width: 0; /* Prevent flex items from overflowing */
 }
 
 .team-member__pic {
   width: 60px;
   height: 60px;
+  min-width: 60px; /* Prevent image shrinking */
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--border);
@@ -48,6 +48,7 @@
   border: 2px solid var(--border);
   width: 60px;
   height: 60px;
+  min-width: 60px; /* Prevent icon shrinking */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -56,17 +57,25 @@
 .team-member__info {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 0.5rem;
+  min-width: 0; /* Allow text to wrap */
+  flex: 1;
 }
 
 .team-member__name {
   font-size: 16px;
   font-weight: 600;
   color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .team-member__type {
   font-size: 14px;
   color: var(--text-secondary);
   text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

@@ -7,13 +7,15 @@ const JoinMeetingCard = ({ onJoin }) => {
   return (
     <Col>
       <Card className="interview-card">
-        <Card.Body>
+        <Card.Body className="d-flex flex-column">
           <Card.Title>
             <FontAwesomeIcon icon={faVideo} className="me-2" />
             Join Meeting
           </Card.Title>
-          <Card.Text>Join an existing interview using a meeting ID.</Card.Text>
-          <Button variant="primary" className="w-100" onClick={onJoin}>
+          <Card.Text className="flex-grow-1">
+            Join an existing interview using a meeting ID.
+          </Card.Text>
+          <Button variant="primary" className="w-100 mt-auto" onClick={onJoin}>
             Join
           </Button>
         </Card.Body>

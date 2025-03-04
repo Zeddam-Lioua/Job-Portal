@@ -43,20 +43,20 @@ const deleteJobPost = (id) => {
   return api.delete(`/job-posts/${id}/`);
 };
 
-const getResumes = () => {
-  return api.get("/resumes/");
+const getApplicants = () => {
+  return api.get("/applicants/");
 };
 
-const getResume = (id) => {
-  return api.get(`/resumes/${id}/`);
+const getApplicantDetail = (id) => {
+  return api.get(`/applicants/${id}/`);
 };
 
-const updateResume = (id, data) => {
-  return api.put(`/resumes/${id}/`, data);
+const updateApplicant = (id, data) => {
+  return api.put(`/applicant/${id}/`, data);
 };
 
-const deleteResume = (id) => {
-  return api.delete(`/resumes/${id}/`);
+const deleteApplicant = (id) => {
+  return api.delete(`/applicant/${id}/`);
 };
 
 const getAnalyticsStats = () => {
@@ -68,11 +68,7 @@ const getAnalyticsStats = () => {
 };
 
 const updateResumeStatus = (id, status) => {
-  return api.patch(`/resumes/${id}/`, { status });
-};
-
-const getApplicants = () => {
-  return api.get("/applicants/");
+  return api.patch(`/applicant/${id}/`, { status });
 };
 
 const getTeamMembers = () => {
@@ -95,6 +91,10 @@ const sendScheduleNotification = (data) => {
   return api.post("/notify-schedule/", data);
 };
 
+const saveRecording = async (recordingData) => {
+  return api.post("/save-recording/", recordingData);
+};
+
 const getInterviewRecordings = () => {
   return api.get("/recordings/");
 };
@@ -115,6 +115,63 @@ const cancelMeeting = (meetingId) => {
   return api.post(`/cancel-meeting/${meetingId}/`);
 };
 
+const getTalentPool = () => {
+  return api.get("/talent-pool/");
+};
+
+const getCandidates = async () => {
+  const response = await getTalentPool();
+  return {
+    data: response.data.candidates.filter(
+      (candidate) =>
+        candidate.status === "candidate" && !candidate.first_interview_date
+    ),
+  };
+};
+
+const getSuperCandidates = async () => {
+  const response = await getTalentPool();
+  return {
+    data: response.data.superCandidates.filter(
+      (candidate) =>
+        candidate.status === "super_candidate" &&
+        !candidate.final_interview_date
+    ),
+  };
+};
+
+const updateApplicantStatus = (id, status) => {
+  return api.patch(`/applicants/${id}/status/`, { status });
+};
+
+const savePerfomanceEvaluation = (id, evaluationData) => {
+  return api.post(`/candidates/${id}/evaluation/`, evaluationData);
+};
+
+const getPerformanceEvaluation = (applicantId) => {
+  return api.get(`/applicants/${applicantId}/evaluation/`);
+};
+
+const savePerformanceEvaluation = (applicantId, evaluationData) => {
+  return api.post(`/applicants/${applicantId}/evaluation/`, evaluationData);
+};
+
+const getNotifications = () => {
+  return api.get("/notifications/");
+};
+
+const markNotificationAsRead = (notificationId) => {
+  return api.patch(`/notifications/${notificationId}/`, { is_read: true });
+};
+
+const markAllNotificationsAsRead = () => {
+  return api.post("/notifications/mark_all_as_read/");
+};
+
+const deleteNotification = (notificationId) => {
+  return api.delete(`/notifications/${notificationId}/`);
+};
+
 const hrService = {
   getJobRequests,
   getJobRequest,
@@ -126,23 +183,37 @@ const hrService = {
   getJobPost,
   updateJobPost,
   deleteJobPost,
-  getResumes,
-  getResume,
-  updateResume,
-  deleteResume,
+  getApplicants,
+  getApplicantDetail,
+  updateApplicant,
+  deleteApplicant,
   getAnalyticsStats,
   updateResumeStatus,
-  getApplicants,
   getTeamMembers,
+
   createInstantMeeting,
   scheduleInterview,
   getUpcomingMeetings,
   sendInterviewInvitation,
   sendScheduleNotification,
+  saveRecording,
   getInterviewRecordings,
   joinMeeting,
   getPersonalRoom,
   cancelMeeting,
+
+  getTalentPool,
+  getCandidates,
+  getSuperCandidates,
+  updateApplicantStatus,
+  savePerfomanceEvaluation,
+  getPerformanceEvaluation,
+  savePerformanceEvaluation,
+
+  getNotifications,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
+  deleteNotification,
 };
 
 export default hrService;

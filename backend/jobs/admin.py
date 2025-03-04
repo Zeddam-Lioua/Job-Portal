@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import JobPost, JobRequest, Resume
+from .models import *
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ['username', 'email', 'user_type', 'department', 'phone']
@@ -9,4 +9,5 @@ class UserAdmin(admin.ModelAdmin):
 # Register the User model just once
 admin.site.register(JobRequest, )
 admin.site.register(JobPost, )
-admin.site.register(Resume, )
+admin.site.register(Applicant, )
+admin.site.register(PerformanceEvaluation, )

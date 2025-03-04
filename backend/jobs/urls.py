@@ -5,18 +5,31 @@ from .views import *
 router = DefaultRouter()
 router.register(r'job-requests', JobRequestViewSet, basename='job-requests')
 router.register(r'job-posts', JobPostViewSet, basename='job-posts')
-router.register(r'resumes', ResumeViewSet, basename='resumes')
+router.register(r'resumes', ApplicantViewSet, basename='resumes')
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('resume-submit/', ResumeCreateView.as_view(), name='resume-submit'),
+    path('applicant-submit/', ApplicantCreateView.as_view(), name='applicant-submit'),
     path('hr/dashboard-stats/', HRDashboardStatsView.as_view(), name='hr-dashboard-stats'),
     path('hr/job-requests/<int:pk>/', JobRequestDetailView.as_view(), name='job-request-detail'),
     path('hr/job-posts/<int:pk>/', JobPostDetailView.as_view(), name='job-post-detail'),
-    path('hr/resumes/<int:pk>/', ResumeDetailView.as_view(), name='resume-detail'),
+    path('hr/applicant/<int:pk>/', ApplicantDetailView.as_view(), name='applicant-detail'),
     path('analytics-stats/', AnalyticsStatsView.as_view(), name='analytics-stats'),
     path('applicants/', ApplicantListView.as_view(), name='applicants'),
-
+    path('applicants/<int:pk>/', ApplicantDetailView.as_view(), name='applicant-detail'),
+    path('talent-pool/', TalentPoolView.as_view(), name='talent-pool'),
+    
+    path(
+        'applicants/<int:applicant_id>/evaluation/',
+        PerformanceEvaluationView.as_view(),
+        name='performance-evaluation'
+    ),
+    
+    path(
+        'applicants/<int:applicant_id>/status/',
+        UpdateApplicantStatusView.as_view(),
+        name='update-applicant-status'
+    ),
 
     path('auth/', include('djoser.urls')),
     path('auth/', include('djoser.urls.authtoken')),

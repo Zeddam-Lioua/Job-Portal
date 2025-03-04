@@ -1,14 +1,13 @@
 import api from "./api";
 
 const streamService = {
-  generateToken: async (userId, roomId = null) => {
+  generateToken: async (userId, roomId = null, guestInfo = null) => {
     try {
       const cleanUserId = userId.replace("@", "_").replace(".", "_");
       const endpoint = userId.startsWith("guest_")
         ? "generate_guest_token"
         : "generate_stream_token";
 
-      // Log the request details for debugging
       console.log(
         `Generating token for user: ${cleanUserId}, room_id: ${roomId}`
       );
@@ -26,13 +25,20 @@ const streamService = {
         throw new Error("Room ID is required for guest token generation.");
       }
 
+      // Make the initial token request
       const response = await api.get(`/${endpoint}/${cleanUserId}/`, {
-        params: roomId ? { room_id: roomId } : {},
+        params: roomId
+          ? {
+              room_id: roomId,
+              user_name: guestInfo?.displayName || cleanUserId,
+              role: userId.startsWith("guest_") ? "guest" : "admin",
+            }
+          : {},
       });
 
       // Store token expiry time for guests
       if (userId.startsWith("guest_")) {
-        localStorage.setItem("guestTokenExpiry", Date.now() + 86400000); // 24 hours in milliseconds
+        localStorage.setItem("guestTokenExpiry", Date.now() + 86400000); // 24 hours
       }
 
       return response.data;
@@ -46,20 +52,23 @@ const streamService = {
         console.warn("Token expired, attempting to regenerate...");
 
         // Regenerate the token
-        const response = await api.get(
+        const refreshResponse = await api.get(
           `/generate_guest_token/${cleanUserId}/`,
           {
-            params: { room_id: roomId },
+            params: {
+              room_id: roomId,
+              user_name: guestInfo?.displayName || cleanUserId,
+              role: "guest",
+            },
           }
         );
 
         // Update the expiry time
         localStorage.setItem("guestTokenExpiry", Date.now() + 86400000);
 
-        return response.data;
+        return refreshResponse.data;
       }
 
-      // Log and re-throw other errors
       console.error(
         "Error generating token:",
         error.response?.data || error.message

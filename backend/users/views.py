@@ -1,23 +1,26 @@
 from .serializers import *
+from .models import Notification
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
-from rest_framework import status, permissions
+from rest_framework import status, permissions, generics
+from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.exceptions import ValidationError
 from django.utils import timezone
 
 from .models import OTPVerification, PhoneVerification, CustomUser
 from django.core.mail import send_mail
 from django.conf import settings
 import logging
+import requests 
 from .serializers import CustomUserSerializer
 from backend.utils import DevelopmentSMSService
 
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from dj_rest_auth.registration.views import SocialLoginView
+
+# from .adapters import CustomGoogleOAuth2Adapter
 
 logger = logging.getLogger(__name__)
 
@@ -311,16 +314,54 @@ class TeamMembersView(APIView):
         
         return Response(users)
     
-class GoogleLoginView(SocialLoginView):
-    adapter_class = GoogleOAuth2Adapter
-    client_class = OAuth2Client
-    callback_url = 'http://localhost:5173'
+# class GoogleLoginView(SocialLoginView):
+#     adapter_class = GoogleOAuth2Adapter
+#     callback_url = 'http://localhost:5173/oauth/google'
+#     client_class = OAuth2Client
 
-    def get_response(self):
-        response = super().get_response()
-        if self.user:
-            response.data.update({
-                'user_type': self.user.user_type,
-                'email': self.user.email,
-            })
-        return response
+#     def post(self, request, *args, **kwargs):
+#         try:
+#             print("Received request data:", request.data)
+            
+#             # Handle both code and credential formats
+#             if 'code' in request.data:
+#                 # Exchange code for access token
+#                 response = requests.post('https://oauth2.googleapis.com/token', {
+#                     'code': request.data['code'],
+#                     'client_id': '190055214049-gojlcmlfhpam7bg8sfvjelevfa30dl8d.apps.googleusercontent.com',
+#                     'client_secret': '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',
+#                     'redirect_uri': self.callback_url,
+#                     'grant_type': 'authorization_code'
+#                 })
+                
+#                 if response.status_code == 200:
+#                     token_data = response.json()
+#                     request.data['access_token'] = token_data['access_token']
+#                 else:
+#                     return Response({"error": "Failed to exchange code for token"}, status=400)
+            
+#             return super().post(request, *args, **kwargs)
+#         except Exception as e:
+#             print("Error in GoogleLoginView:", str(e))
+#             return Response({"error": str(e)}, status=400)
+
+class NotificationListView(generics.ListAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(recipient=self.request.user)
+
+class NotificationDetailView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(recipient=self.request.user)
+
+class NotificationMarkAllReadView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        Notification.objects.filter(recipient=request.user).update(is_read=True)
+        return Response(status=status.HTTP_200_OK)

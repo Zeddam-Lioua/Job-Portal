@@ -14,7 +14,6 @@ import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "./Auth.css";
-import authService from "../../services/auth.service";
 
 export default function Login() {
   const [credentials, setCredentials] = useState({
@@ -23,7 +22,7 @@ export default function Login() {
   });
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -47,23 +46,29 @@ export default function Login() {
     }
   };
 
-  const handleGoogleLogin = async (response) => {
+  const handleGoogleLogin = async (credentialResponse) => {
     try {
-      const result = await authService.googleLogin(response.credential);
+      setIsLoading(true);
+      setError("");
 
-      if (result.status === 302) {
-        // User not registered, redirect to registration
-        navigate("/register", {
-          state: { email: result.data.email },
-        });
-        return;
+      console.log("Received Google credential:", credentialResponse);
+      const response = await googleLogin(credentialResponse.credential);
+      console.log("Auth response:", response);
+
+      if (response?.user) {
+        if (response.user.user_type === "human_resources") {
+          setTimeout(() => navigate("/admin/hr/dashboard"), 100);
+        } else if (response.user.user_type === "district_manager") {
+          setTimeout(() => navigate("/admin/dm/dashboard"), 100);
+        } else {
+          setError("Invalid user type");
+        }
       }
-
-      // Normal login success flow
-      localStorage.setItem("token", result.data.access);
-      navigate("/dashboard");
     } catch (error) {
-      console.error("Google login failed:", error);
+      console.error("Google login error:", error);
+      setError(error.response?.data?.error || "Google login failed");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -129,7 +134,9 @@ export default function Login() {
                 <div className="separator mb-4">Or</div>
                 <div className="google-login-container">
                   <GoogleLogin
-                    onSuccess={handleGoogleLogin}
+                    onSuccess={(credentialResponse) => {
+                      handleGoogleLogin(credentialResponse);
+                    }}
                     onError={() => {
                       setError("Google Login Failed");
                     }}

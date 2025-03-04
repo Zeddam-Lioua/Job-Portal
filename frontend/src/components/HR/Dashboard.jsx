@@ -22,6 +22,7 @@ import RecordingsPage from "./Interviews/Pages/RecordingsPage";
 import InterviewRoom from "../Stream/InterviewRoom";
 import Profile from "../Profile/Profile";
 import Sidebar from "../layout/Sidebar";
+import TalentPool from "./TalentPool";
 import Team from "./Team";
 
 import "./styles/HRDashboard.css";
@@ -70,8 +71,8 @@ const HRDashboard = () => {
           <Route path="job-requests" element={<JobRequests />} />
           <Route path="job-requests/:id" element={<JobRequestDetail />} />
           <Route path="resumes" element={<Resumes />} />
-          <Route path="resumes/:id" element={<ResumeDetail />} />
-          <Route path="active-posts" element={<JobPosts />} />
+          <Route path="applicants/:id" element={<ResumeDetail />} />
+          <Route path="active-posts/*" element={<JobPosts />} />
           <Route path="active-posts/:id" element={<JobPostDetail />} />
           <Route path="analytics" element={<AnalyticsDashboard />} />
           <Route path="interviews" element={<InterviewDashboard />} />
@@ -81,6 +82,7 @@ const HRDashboard = () => {
           <Route path="team" element={<Team />} />
           <Route path="upcoming-meetings" element={<UpcomingMeetingsPage />} />
           <Route path="recordings" element={<RecordingsPage />} />
+          <Route path="talent-pool" element={<TalentPool />} />
         </Routes>
       </div>
     </>

@@ -3,6 +3,8 @@ import { StreamChat } from "stream-chat";
 import streamService from "../../services/stream.service";
 import { STREAM_API_KEY } from "../../config/stream";
 
+import { useAuth } from "../../context/AuthContext";
+
 const ChatContext = React.createContext();
 
 const ChatProvider = ({
@@ -16,6 +18,7 @@ const ChatProvider = ({
   const [channel, setChannel] = useState(null);
   const [error, setError] = useState(null);
   const chatClientRef = useRef(null);
+  const { user } = useAuth();
 
   useEffect(() => {
     const initChat = async () => {
@@ -26,30 +29,58 @@ const ChatProvider = ({
           isGuest,
           guestInfo,
         });
+
+        // Validate guestInfo when in guest mode
+        if (isGuest && (!guestInfo?.firstName || !guestInfo?.lastName)) {
+          console.error("Missing guest information:", guestInfo);
+          setError("Invalid guest information");
+          return;
+        }
+
         const cleanUserId = userId.replace("@", "_").replace(".", "_");
         const { token } = await streamService.generateToken(
           cleanUserId,
-          roomId
+          roomId,
+          isGuest ? guestInfo : null
         );
 
-        // Use getOrCreateInstance to avoid creating multiple instances
         if (!chatClientRef.current) {
           chatClientRef.current = StreamChat.getInstance(STREAM_API_KEY);
         }
 
         const isConnected = chatClientRef.current.user?.id === cleanUserId;
+
         if (!isConnected) {
+          const displayName = isGuest
+            ? `${guestInfo.firstName} ${guestInfo.lastName}`.trim()
+            : `${user?.first_name} ${user?.last_name}`.trim();
+
+          console.log("Connecting user with:", {
+            id: cleanUserId,
+            name: displayName,
+            role: isGuest ? "guest" : "admin",
+          });
+
+          // First connect with minimal info
           await chatClientRef.current.connectUser(
             {
               id: cleanUserId,
-              name:
-                isGuest && guestInfo
-                  ? `${guestInfo.firstName} ${guestInfo.lastName}`.trim()
-                  : cleanUserId,
-              role: isGuest ? "guest" : "admin",
+              name: displayName,
             },
             token
           );
+
+          // Then update with full user data
+          await chatClientRef.current.updateUser({
+            id: cleanUserId,
+            name: displayName,
+            role: isGuest ? "guest" : "admin",
+            firstName: isGuest ? guestInfo.firstName : user?.first_name,
+            lastName: isGuest ? guestInfo.lastName : user?.last_name,
+            image: null,
+          });
+
+          console.log("Connected user:", chatClientRef.current.user);
         }
 
         const channelInstance = chatClientRef.current.channel(
@@ -57,10 +88,16 @@ const ChatProvider = ({
           roomId,
           {
             members: [cleanUserId],
+            presence: true,
           }
         );
 
-        await channelInstance.watch();
+        await channelInstance.watch({ presence: true });
+
+        // Debug channel members
+        const members = await channelInstance.queryMembers({});
+        console.log("Channel members:", members);
+
         setClient(chatClientRef.current);
         setChannel(channelInstance);
       } catch (err) {
@@ -88,7 +125,7 @@ const ChatProvider = ({
       };
       cleanup();
     };
-  }, [userId, roomId, isGuest, guestInfo]);
+  }, [userId, roomId, isGuest, guestInfo, user]);
 
   if (error) return <div className="error">Error: {error}</div>;
   if (!client || !channel) return <div className="loading">Loading...</div>;

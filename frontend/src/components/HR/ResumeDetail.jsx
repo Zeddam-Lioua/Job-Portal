@@ -25,11 +25,11 @@ const ResumeDetail = () => {
   useEffect(() => {
     const fetchResume = async () => {
       try {
-        const response = await hrService.getResume(id);
+        const response = await hrService.getApplicantDetail(id);
         setResume(response.data);
       } catch (err) {
-        setError("Failed to load resume details");
-        console.error("Error fetching resume:", err);
+        setError("Failed to load applicant details");
+        console.error("Error fetching applicant:", err);
       } finally {
         setLoading(false);
       }
@@ -42,7 +42,7 @@ const ResumeDetail = () => {
     setSaving(true);
     try {
       console.log(`Updating status to: ${newStatus}`);
-      await hrService.updateResumeStatus(id, newStatus);
+      await hrService.updateApplicantStatus(id, newStatus);
       setResume({ ...resume, status: newStatus });
       console.log(`Status updated to: ${newStatus}`);
       alert(`Resume status updated to ${newStatus}`);
@@ -56,13 +56,17 @@ const ResumeDetail = () => {
   };
 
   const viewResume = () => {
-    navigate(`/pdf-viewer?url=${encodeURIComponent(resume.resume_file)}`);
+    if (resume?.resume_file) {
+      window.open(resume.resume_file, "_blank");
+    } else {
+      setError("Resume file not available");
+    }
   };
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to delete this resume?")) {
       try {
-        await hrService.deleteResume(id);
+        await hrService.deleteApplicant(id);
         alert("Resume deleted successfully!");
         navigate("/admin/hr/dashboard/resumes");
       } catch (err) {
@@ -137,14 +141,15 @@ const ResumeDetail = () => {
         <Card.Body>
           <Card.Title className="d-flex align-items-center mb-4">
             <FontAwesomeIcon icon={faFileAlt} className="me-2" />
-            Resume Details
+            Applicant Details
           </Card.Title>
 
           <div className="info-group mb-4">
             <h6 className="text-muted mb-3">Applicant Information</h6>
             <p className="mb-3">
               <FontAwesomeIcon icon={faUser} className="me-2" />
-              <strong>Name:</strong> {resume?.applicant}
+              <strong>Name:</strong>{" "}
+              {`${resume?.first_name} ${resume?.last_name}`}
             </p>
             <p className="mb-3">
               <FontAwesomeIcon icon={faEnvelope} className="me-2" />
@@ -160,11 +165,11 @@ const ResumeDetail = () => {
             <h6 className="text-muted mb-3">Job Information</h6>
             <p className="mb-4">
               <FontAwesomeIcon icon={faBriefcase} className="me-2" />
-              <strong>Job Post:</strong> {resume.job_post_name}
+              <strong>Job Post:</strong> {resume?.job_post_name}
             </p>
             <p className="mb-4">
               <FontAwesomeIcon icon={faUserTie} className="me-2" />
-              <strong>District Manager:</strong> {resume.district_manager_name}
+              <strong>District Manager:</strong> {resume?.district_manager_name}
             </p>
           </div>
 
@@ -194,11 +199,11 @@ const ResumeDetail = () => {
             </Button>
             <Button
               variant="success"
-              onClick={() => handleStatusChange("accepted")}
+              onClick={() => handleStatusChange("candidate")} // Changed from "accepted"
               className="accept-resume-btn thin-button"
               disabled={saving}
             >
-              Accept Resume
+              Accept as Candidate
             </Button>
             <Button
               variant="warning"
@@ -206,7 +211,7 @@ const ResumeDetail = () => {
               className="reject-resume-btn thin-button"
               disabled={saving}
             >
-              Reject Resume
+              Reject
             </Button>
             <Button
               variant="info"

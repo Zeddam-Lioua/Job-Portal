@@ -1,8 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faFileAlt,
   faUsers,
   faBriefcase,
   faChartLine,
@@ -10,18 +9,25 @@ import {
   faSignOutAlt,
   faUser,
   faCog,
-  faBell,
   faUsersCog,
+  faFileAlt,
+  faUserGraduate,
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "../../context/AuthContext";
 import LogoIcon from "./LogoIcon";
+import NotificationsPanel from "../HR/NotificationsPanel";
 import "./Sidebar.css";
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
+  };
+
+  const handleNavigation = (path) => {
+    navigate(path);
   };
 
   if (user?.user_type !== "human_resources") {
@@ -34,52 +40,95 @@ const Sidebar = () => {
         <LogoIcon />
       </div>
       <div className="sidebar-content">
-        <Link to="/admin/hr/dashboard/analytics" className="sidebar-link">
+        <button
+          onClick={() => handleNavigation("/admin/hr/dashboard/analytics")}
+          className="sidebar-link"
+        >
           <FontAwesomeIcon icon={faChartLine} className="me-2" />
           <span className="link-text">Dashboard</span>
-        </Link>
-        <Link to="/admin/hr/dashboard/job-requests" className="sidebar-link">
+        </button>
+
+        <button
+          onClick={() => handleNavigation("/admin/hr/dashboard/job-requests")}
+          className="sidebar-link"
+        >
           <FontAwesomeIcon icon={faFileAlt} className="me-2" />
           <span className="link-text">Job Requests</span>
-        </Link>
-        <Link to="/admin/hr/dashboard/resumes" className="sidebar-link">
-          <FontAwesomeIcon icon={faUsers} className="me-2" />
-          <span className="link-text">Resumes</span>
-        </Link>
-        <Link to="/admin/hr/dashboard/active-posts" className="sidebar-link">
+        </button>
+
+        <button
+          onClick={() => handleNavigation("/admin/hr/dashboard/active-posts")}
+          className="sidebar-link"
+        >
           <FontAwesomeIcon icon={faBriefcase} className="me-2" />
           <span className="link-text">Job Posts</span>
-        </Link>
-        <Link to="/admin/hr/dashboard/interviews" className="sidebar-link">
+        </button>
+
+        <button
+          onClick={() => handleNavigation("/admin/hr/dashboard/resumes")}
+          className="sidebar-link"
+        >
+          <FontAwesomeIcon icon={faUsers} className="me-2" />
+          <span className="link-text">Resumes</span>
+        </button>
+
+        <button
+          onClick={() => handleNavigation("/admin/hr/dashboard/talent-pool")}
+          className="sidebar-link"
+        >
+          <FontAwesomeIcon icon={faUserGraduate} className="me-2" />
+          <span className="link-text">Talent Pool</span>
+        </button>
+
+        <button
+          onClick={() => handleNavigation("/admin/hr/dashboard/interviews")}
+          className="sidebar-link"
+        >
           <FontAwesomeIcon icon={faVideo} className="me-2" />
           <span className="link-text">Interviews</span>
-        </Link>
-        <Link to="/admin/hr/dashboard/notifications" className="sidebar-link">
-          <FontAwesomeIcon icon={faBell} className="me-2" />
-          <span className="link-text">Notifications</span>
-        </Link>
+        </button>
+
+        <div className="sidebar-link notifications-wrapper">
+          <NotificationsPanel />
+        </div>
       </div>
+
       <div className="sidebar-bottom">
-        <div className="separator"></div>
-        <Link to="/admin/hr/dashboard/team" className="sidebar-link">
+        <button
+          onClick={() => handleNavigation("/admin/hr/dashboard/team")}
+          className="sidebar-link"
+        >
           <FontAwesomeIcon icon={faUsersCog} className="me-2" />
           <span className="link-text">Team</span>
-        </Link>
-        <Link to="/admin/hr/dashboard/profile" className="sidebar-link">
+        </button>
+
+        <button
+          onClick={() => handleNavigation("/admin/hr/dashboard/profile")}
+          className="sidebar-link"
+        >
           <FontAwesomeIcon icon={faUser} className="me-2" />
           <span className="link-text">Profile</span>
-        </Link>
-        <Link to="/admin/hr/dashboard/settings" className="sidebar-link">
+        </button>
+
+        <button
+          onClick={() => handleNavigation("/admin/hr/dashboard/settings")}
+          className="sidebar-link"
+        >
           <FontAwesomeIcon icon={faCog} className="me-2" />
           <span className="link-text">Settings</span>
-        </Link>
-        <Link to="/admin/login" className="sidebar-link" onClick={handleLogout}>
+        </button>
+
+        <button onClick={handleLogout} className="sidebar-link">
           <FontAwesomeIcon icon={faSignOutAlt} className="me-2" />
           <span className="link-text">Logout</span>
-        </Link>
+        </button>
       </div>
+
       <div className="profile-widget">
-        <Link to="/admin/hr/dashboard/profile" className="profile-link">
+        <button
+          onClick={() => handleNavigation("/admin/hr/dashboard/profile")}
+          className="profile-link"
+        >
           {user && user.profile_picture ? (
             <img
               src={user.profile_picture}
@@ -95,7 +144,7 @@ const Sidebar = () => {
             </span>
             <span className="profile-type">{user?.user_type}</span>
           </div>
-        </Link>
+        </button>
       </div>
     </div>
   );

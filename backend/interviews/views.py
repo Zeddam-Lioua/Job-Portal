@@ -19,6 +19,7 @@ from django.utils import timezone
 from users.models import CustomUser
 from datetime import datetime
 import uuid
+from urllib.parse import quote
 
 
 class GenerateStreamTokenView(APIView):
@@ -111,11 +112,11 @@ class GuestStreamTokenView(APIView):
             try:
                 chat_client.update_channel_type(
                     "messaging",
-                    grants={  # Grants for roles
+                    grants={
                         "guest": [
-                            "read-channel",  # Allow guest users to read channels
-                            "create-message",  # Allow guest users to send messages
-                            "create-channel"  # Allow guest users to create/join channels
+                            "read-channel",
+                            "create-message",
+                            "create-channel"
                         ]
                     }
                 )
@@ -151,11 +152,11 @@ class GuestStreamTokenView(APIView):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
 
-            # Step 4: Update interview with candidate name
+            # Step 4: Update interview guest information
             try:
                 interview = Interview.objects.get(meeting_id=room_id)
-                interview.candidate_name = display_name
-                interview.save()
+                interview.guest_id = clean_user_id
+                interview.save(update_fields=['guest_id'])
             except Interview.DoesNotExist:
                 pass
             except Exception as e:
@@ -198,27 +199,33 @@ class CreateMeetingView(APIView):
 
     def post(self, request):
         try:
-            print("Received data for instant meeting:", request.data)  # Debug log
-            serializer = InterviewSerializer(data=request.data)
-            if serializer.is_valid():
-                room_name = f"instant-interview-{uuid.uuid4()}"
-                interview = Interview.objects.create(
-                    meeting_id=room_name,
-                    interviewer=request.user,
-                    candidate_email=serializer.validated_data['candidate_email'],
-                    scheduled_time=timezone.now(),
-                    status='started'
+            email = request.data.get('candidate_email')
+            try:
+                candidate = Applicant.objects.get(email=email)
+            except Applicant.DoesNotExist:
+                return Response(
+                    {"error": "Candidate not found"},
+                    status=status.HTTP_404_NOT_FOUND
                 )
-                return Response({
-                    "message": "Meeting created successfully",
-                    "meeting_id": room_name
-                }, status=status.HTTP_201_CREATED)
-            print("Serializer errors:", serializer.errors)  # Debug log
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            room_name = f"instant-interview-{uuid.uuid4()}"
+            interview = Interview.objects.create(
+                meeting_id=room_name,
+                interviewer=request.user,
+                candidate=candidate,
+                scheduled_time=timezone.now(),
+                status='started'
+            )
+
+            return Response({
+                "message": "Meeting created successfully",
+                "meeting_id": room_name
+            }, status=status.HTTP_201_CREATED)
+
         except Exception as e:
-            print("Error creating meeting:", str(e))  # Debug log
+            print("Error creating meeting:", str(e))
             return Response(
-                {"error": str(e)}, 
+                {"error": str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -227,28 +234,52 @@ class ScheduleInterviewView(APIView):
 
     def post(self, request):
         try:
-            print("Received data for scheduled interview:", request.data)  # Debug log
+            print("Schedule Interview - Request data:", request.data)
+            print("Schedule Interview - User:", request.user)
+            
             serializer = InterviewSerializer(data=request.data)
             if serializer.is_valid():
-                room_name = f"scheduled-interview-{uuid.uuid4()}"
+                # Get candidate name from Applicant model
+                try:
+                    applicant = Applicant.objects.get(
+                        email=serializer.validated_data['candidate_email']
+                    )
+                    candidate_name = f"{applicant.first_name} {applicant.last_name}"
+                except Applicant.DoesNotExist:
+                    candidate_name = "Unknown Candidate"
+
                 interview = Interview.objects.create(
-                    meeting_id=room_name,
+                    meeting_id=f"scheduled-interview-{uuid.uuid4()}",
                     interviewer=request.user,
                     candidate_email=serializer.validated_data['candidate_email'],
                     scheduled_time=serializer.validated_data['scheduled_time'],
-                    status='scheduled'
+                    status='scheduled',
+                    candidate_name=candidate_name  # Add candidate name here
                 )
+                
+                print("Created interview:", interview)
+                print("Interview fields:", {
+                    'id': interview.id,
+                    'meeting_id': interview.meeting_id,
+                    'interviewer': interview.interviewer,
+                    'candidate_email': interview.candidate_email,
+                    'candidate_name': interview.candidate_name,
+                    'scheduled_time': interview.scheduled_time,
+                    'status': interview.status
+                })
+                
                 return Response({
                     "message": "Interview scheduled successfully",
-                    "meeting_id": room_name
+                    "meeting_id": interview.meeting_id
                 }, status=status.HTTP_201_CREATED)
-            print("Serializer errors:", serializer.errors)  # Debug log
+                
+            print("Serializer errors:", serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            print("Error scheduling interview:", str(e))  # Debug log
+            print("Error in ScheduleInterviewView:", str(e))
             return Response(
                 {"error": str(e)}, 
-                status=status.HTTP_400_BAD_REQUEST
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 
 
@@ -274,18 +305,26 @@ class ViewUpcomingMeetingsView(APIView):
 
     def get(self, request):
         try:
+            # Add debug prints
+            print("Current user:", request.user)
+            print("Current time:", timezone.now())
+            
             upcoming_meetings = Interview.objects.filter(
                 interviewer=request.user,
                 scheduled_time__gte=timezone.now(),
                 status='scheduled'
             ).order_by('scheduled_time')
             
+            # Debug prints
+            print("Raw query:", upcoming_meetings.query)
+            print("Found meetings count:", upcoming_meetings.count())
+            
             serializer = InterviewSerializer(upcoming_meetings, many=True)
             return Response({
-                "upcoming": serializer.data  # Wrap the data in "upcoming" key
+                "upcoming": serializer.data
             })
         except Exception as e:
-            print("Error fetching upcoming meetings:", str(e))
+            print("Error in ViewUpcomingMeetingsView:", str(e))
             return Response(
                 {"error": str(e)}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -304,6 +343,8 @@ class SendInvitationView(APIView):
             email = request.data.get('email')
             meeting_id = request.data.get('meetingId')
             scheduled_time = request.data.get('scheduledTime')
+            first_name = request.data.get('first_name')
+            last_name = request.data.get('last_name')
             
             # Generate unique guest ID
             guest_id = f"guest_{uuid.uuid4()}"
@@ -312,7 +353,14 @@ class SendInvitationView(APIView):
             interview.save()
             
             # Construct guest meeting link with guest ID
-            guest_meeting_link = f"{settings.FRONTEND_URL}/guest/interview/{meeting_id}?guest_id={guest_id}"
+            guest_meeting_link = (
+                f"{settings.FRONTEND_URL}/guest/interview/{meeting_id}"
+                f"?guest_id={guest_id}"
+                f"&first_name={quote(first_name)}"
+                f"&last_name={quote(last_name)}"
+                f"&email={quote(email)}"
+            )
+            
             
             # Format the time
             formatted_time = datetime.fromisoformat(scheduled_time.replace('Z', '+00:00')).strftime(
@@ -393,6 +441,35 @@ class NotifyScheduleView(APIView):
             print("Error sending schedule notification:", str(e))
             return Response(
                 {"error": f"Failed to send notification: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class SaveRecordingView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            print("Received recording data:", request.data)  # Debug log
+            recording_data = {
+                'interview_id': request.data.get('interview_id'),
+                'recording_url': request.data.get('recording_url'),
+                'chat_log': request.data.get('chat_log', ''),
+                'interviewer': request.user.id
+            }
+            
+            serializer = RecordingSerializer(data=recording_data)
+            if serializer.is_valid():
+                serializer.save()
+                print("Recording saved successfully")  # Debug log
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+            print("Serializer errors:", serializer.errors)  # Debug log
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+        except Exception as e:
+            print("Error saving recording:", str(e))  # Debug log
+            return Response(
+                {"error": f"Failed to save recording: {str(e)}"},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         

@@ -35,7 +35,7 @@ const Resumes = () => {
 
   const fetchResumes = async () => {
     try {
-      const response = await hrService.getResumes({
+      const response = await hrService.getApplicants({
         status: filter,
         sort: sortBy,
       });
@@ -59,10 +59,12 @@ const Resumes = () => {
   };
 
   const filteredResumes = resumes.filter(
-    (resume) =>
-      (filter === "all" || resume.status === filter) &&
-      (resume.applicant.toLowerCase().includes(search.toLowerCase()) ||
-        resume.job_post_name.toLowerCase().includes(search.toLowerCase()))
+    (applicant) =>
+      (filter === "all" || applicant.status === filter) &&
+      ((applicant.first_name + " " + applicant.last_name)
+        .toLowerCase()
+        .includes(search.toLowerCase()) ||
+        applicant.job_post_name?.toLowerCase().includes(search.toLowerCase()))
   );
 
   const sortedResumes = filteredResumes.sort((a, b) => {
@@ -144,31 +146,36 @@ const Resumes = () => {
         </div>
       ) : (
         <Row xs={1} md={2} lg={3} className="g-4">
-          {sortedResumes.map((resume) => (
-            <Col key={resume.id}>
+          {sortedResumes.map((applicant) => (
+            <Col key={applicant.id}>
               <Card className="resume-card h-100">
                 <Card.Body>
                   <div className="d-flex justify-content-between align-items-start mb-3">
                     <div>
                       <Card.Title className="mb-1">
                         <FontAwesomeIcon icon={faUser} className="me-2" />
-                        {resume.applicant}
+                        {`${applicant.first_name || ""} ${
+                          applicant.last_name || ""
+                        }`}
                       </Card.Title>
                       <Card.Subtitle className="text-muted">
                         <FontAwesomeIcon icon={faBriefcase} className="me-2" />
-                        {resume.job_post_name}
+                        {applicant.job_post_name || "No Job Post"}
                       </Card.Subtitle>
                     </div>
-                    <Badge bg={getStatusBadgeVariant(resume.status)}>
-                      {resume.status}
+                    <Badge bg={getStatusBadgeVariant(applicant.status)}>
+                      {applicant.status}
                     </Badge>
                   </div>
                   <Card.Text className="text-muted small mb-3">
                     <FontAwesomeIcon icon={faCalendar} className="me-2" />
-                    Applied: {new Date(resume.created_at).toLocaleDateString()}
+                    Applied:{" "}
+                    {applicant.created_at
+                      ? new Date(applicant.created_at).toLocaleDateString()
+                      : "Date not available"}
                   </Card.Text>
                   <Link
-                    to={`/admin/hr/dashboard/resumes/${resume.id}`}
+                    to={`/admin/hr/dashboard/applicants/${applicant.id}`}
                     className="mt-4 btn btn-outline-primary w-100"
                   >
                     View Details

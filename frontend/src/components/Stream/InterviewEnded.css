@@ -1,0 +1,26 @@
+.interview-ended-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.interview-ended-container h2 {
+  margin-bottom: 1.5rem;
+  color: #2c3e50;
+}
+
+.interview-ended-container p {
+  color: #34495e;
+  margin-bottom: 1rem;
+}
+
+.interview-ended-container button {
+  margin-top: 2rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+}

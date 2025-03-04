@@ -6,14 +6,17 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Count, Avg, F
+from urllib.parse import quote
 
 from .models import *
 from .serializers import *
-from users.models import CustomUser, OTPVerification
+from users.models import CustomUser, OTPVerification, Notification
+from django.contrib.auth import get_user_model
 
 from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
+from django.utils import timezone
 import logging
 
 
@@ -32,8 +35,22 @@ class JobRequestViewSet(viewsets.ModelViewSet):
         return JobRequest.objects.none()
 
     def perform_create(self, serializer):
-        serializer.save(district_manager=self.request.user)
+        # Save the job request first
+        job_request = serializer.save(district_manager=self.request.user)
 
+        # Then create notifications for HR users
+        hr_users = get_user_model().objects.filter(user_type='human_resources')
+        for hr_user in hr_users:
+            Notification.objects.create(
+                recipient=hr_user,
+                sender_type='user',
+                sender_user=self.request.user,
+                notification_type='job_request',
+                title='New Job Request',
+                message=f'New job request received for {job_request.field}',
+                link=f'/admin/hr/dashboard/job-requests',
+                entity_id=job_request.id
+        )
     @action(detail=True, methods=['post'])
     def process_request(self, request, pk=None):
         if request.user.user_type != 'human_resources':
@@ -63,6 +80,8 @@ class JobRequestViewSet(viewsets.ModelViewSet):
             job_request.save()
         
         return Response({'status': job_request.status})
+    
+
 
 class JobPostViewSet(viewsets.ModelViewSet):
     queryset = JobPost.objects.filter(is_active=True)
@@ -72,38 +91,59 @@ class JobPostViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return JobPost.objects.filter(is_active=True)
 
-class ResumeViewSet(viewsets.ModelViewSet):
-    queryset = Resume.objects.all()
-    serializer_class = ResumeSerializer
+class ApplicantViewSet(viewsets.ModelViewSet):
+    queryset = Applicant.objects.all()
+    serializer_class = ApplicantSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
         if user.is_authenticated and user.user_type == 'human_resources':
-            return Resume.objects.all()
-        return Resume.objects.none()
+            return Applicant.objects.all()
+        return Applicant.objects.none()
 
-class ResumeCreateView(generics.CreateAPIView):
-    queryset = Resume.objects.all()
-    serializer_class = ResumeSerializer
+class ApplicantCreateView(generics.CreateAPIView):
+    queryset = Applicant.objects.all()
+    serializer_class = ApplicantSerializer
     permission_classes = [permissions.AllowAny]
     parser_classes = (MultiPartParser, FormParser)
 
     def perform_create(self, serializer):
         try:
+            # Get job post
+            job_post_id = self.request.data.get('job_post')
+            job_post = JobPost.objects.get(id=job_post_id)
+            
+            # Get email from request data
             applicant_email = self.request.data.get('email')
-            if not applicant_email:
-                raise serializers.ValidationError("Email is required")
 
-            # Try to get existing user or create inactive user
-            user, created = CustomUser.objects.get_or_create(
-                email=applicant_email,
-                defaults={'is_active': False}
+            # Save applicant with required fields
+            applicant = serializer.save(
+                job_post=job_post,
+                status='pending'
             )
+
+            # Create notification for HR users
+            hr_users = get_user_model().objects.filter(user_type='human_resources')
+            for hr_user in hr_users:
+                Notification.objects.create(
+                    recipient=hr_user,
+                    notification_type='application',
+                    title='New Application',
+                    message=f'New application received from {applicant.first_name} {applicant.last_name}',
+                    link=f'/admin/hr/dashboard/applicants/{applicant.id}'
+                )
             
-            # Save resume
-            resume = serializer.save(applicant=self.request.data.get('applicant'))
-            
+            # Check if user exists or create new one
+            User = get_user_model()
+            user, created = User.objects.get_or_create(
+                email=applicant_email,
+                defaults={
+                    'username': applicant_email,
+                    'is_active': False
+                }
+            )
+
             # Send OTP if user is not active
             if not user.is_active:
                 otp = OTPVerification.generate_otp()
@@ -117,11 +157,11 @@ class ResumeCreateView(generics.CreateAPIView):
                     fail_silently=False,
                 )
             
-            return resume
+            return applicant
                 
         except Exception as e:
-            logger.error(f"Error creating resume: {str(e)}")
-            raise serializers.ValidationError(f"Failed to create resume: {str(e)}")
+            logger.error(f"Error creating applicant: {str(e)}")
+            raise serializers.ValidationError(f"Failed to create application: {str(e)}")
 
 class HRDashboardStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -129,7 +169,7 @@ class HRDashboardStatsView(APIView):
     def get(self, request):
         pending_requests_count = JobRequest.objects.filter(status='pending').count()
         active_jobs_count = JobPost.objects.filter(is_active=True).count()
-        new_applications_count = Resume.objects.filter(status='pending').count()
+        new_applications_count = Applicant.objects.filter(status='pending').count()
 
         stats = {
             'pendingRequests': pending_requests_count,
@@ -149,9 +189,9 @@ class JobPostDetailView(generics.RetrieveAPIView):
     serializer_class = JobPostSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-class ResumeDetailView(generics.RetrieveAPIView):
-    queryset = Resume.objects.all()
-    serializer_class = ResumeSerializer
+class ApplicantDetailView(generics.RetrieveAPIView):
+    queryset = Applicant.objects.all()
+    serializer_class = ApplicantSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 class AnalyticsStatsView(APIView):
@@ -159,11 +199,11 @@ class AnalyticsStatsView(APIView):
 
     def get(self, request):
         try:
-            total_applications = Resume.objects.count()
+            total_applications = Applicant.objects.count()
             total_job_posts = JobPost.objects.count()
-            total_hires = Resume.objects.filter(status='accepted').count()
-            applications_per_job = JobPost.objects.annotate(applications=Count('resume')).values('field', 'applications')
-            average_time_to_hire = Resume.objects.filter(status='accepted').annotate(time_to_hire=F('hired_date') - F('created_at')).aggregate(Avg('time_to_hire'))['time_to_hire__avg']
+            total_hires = Applicant.objects.filter(status='accepted').count()
+            applications_per_job = JobPost.objects.annotate(applications=Count('applicant')).values('field', 'applications')
+            average_time_to_hire = Applicant.objects.filter(status='accepted').annotate(time_to_hire=F('hired_date') - F('created_at')).aggregate(Avg('time_to_hire'))['time_to_hire__avg']
             application_conversion_rate = (total_hires / total_applications) * 100 if total_applications > 0 else 0
 
             stats = {
@@ -185,11 +225,123 @@ class ApplicantListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        applicants = Resume.objects.values(
+        applicants = Applicant.objects.values(
             'id',
-            'applicant',
+            'first_name',
+            'last_name',
             'email',
-            'status'
+            'status',
+            'created_at',
+            'job_post__field'  # Make sure this is included
         ).filter(status='pending')
+        
+        # Transform the data to match frontend expectations
+        for applicant in applicants:
+            applicant['job_post_name'] = applicant.pop('job_post__field', None)
+            
         return Response(applicants, status=status.HTTP_200_OK)
     
+
+class TalentPoolView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            candidates = Applicant.objects.filter(status='candidate')
+            super_candidates = Applicant.objects.filter(status='super_candidate')
+            hirees = Applicant.objects.filter(status='hiree')
+
+            return Response({
+                'candidates': ApplicantSerializer(candidates, many=True).data,
+                'superCandidates': ApplicantSerializer(super_candidates, many=True).data,
+                'hirees': ApplicantSerializer(hirees, many=True).data
+            })
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+class UpdateApplicantStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, applicant_id):
+        try:
+            applicant = Applicant.objects.get(id=applicant_id)
+            new_status = request.data.get('status')
+            
+            if new_status not in dict(Applicant.STATUS_CHOICES):
+                return Response(
+                    {'error': 'Invalid status'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            applicant.status = new_status
+            if new_status == 'hiree':
+                applicant.hired_date = timezone.now()
+            applicant.save()
+            
+            return Response(ApplicantSerializer(applicant).data)
+        except Applicant.DoesNotExist:
+            return Response(
+                {'error': 'Applicant not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
+class PerformanceEvaluationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, applicant_id):
+        try:
+            evaluation = PerformanceEvaluation.objects.get(
+                applicant_id=applicant_id
+            )
+            return Response(PerformanceEvaluationSerializer(evaluation).data)
+        except PerformanceEvaluation.DoesNotExist:
+            return Response(
+                {'error': 'No evaluation found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+    def post(self, request, applicant_id):
+        try:
+            # Check if evaluation exists
+            evaluation = PerformanceEvaluation.objects.filter(
+                applicant_id=applicant_id
+            ).first()
+            
+            serializer = PerformanceEvaluationSerializer(
+                evaluation,
+                data=request.data,
+                partial=True
+            ) if evaluation else PerformanceEvaluationSerializer(data={
+                **request.data,
+                'applicant': applicant_id
+            })
+            
+            if serializer.is_valid():
+                serializer.save()
+                return Response(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED if not evaluation 
+                    else status.HTTP_200_OK
+                )
+            return Response(
+                serializer.errors, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
