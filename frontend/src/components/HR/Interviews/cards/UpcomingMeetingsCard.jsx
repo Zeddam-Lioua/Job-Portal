@@ -10,15 +10,17 @@ const UpcomingMeetingsCard = () => {
   return (
     <Col>
       <Card className="interview-card">
-        <Card.Body>
+        <Card.Body className="d-flex flex-column">
           <Card.Title>
             <FontAwesomeIcon icon={faCalendar} className="me-2" />
             Upcoming Meetings
           </Card.Title>
-          <Card.Text>View all scheduled interviews.</Card.Text>
+          <Card.Text className="flex-grow-1">
+            View all scheduled interviews.
+          </Card.Text>
           <Button
             variant="primary"
-            className="w-100"
+            className="w-100 mt-auto"
             onClick={() => navigate("/admin/hr/dashboard/upcoming-meetings")}
           >
             View Meetings

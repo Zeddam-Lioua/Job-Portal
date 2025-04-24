@@ -201,7 +201,7 @@ class CreateMeetingView(APIView):
         try:
             email = request.data.get('candidate_email')
             try:
-                candidate = Applicant.objects.get(email=email)
+                candidate = Applicant.objects.filter(email=email).latest('created_at')
             except Applicant.DoesNotExist:
                 return Response(
                     {"error": "Candidate not found"},
@@ -237,36 +237,41 @@ class ScheduleInterviewView(APIView):
             print("Schedule Interview - Request data:", request.data)
             print("Schedule Interview - User:", request.user)
             
-            serializer = InterviewSerializer(data=request.data)
-            if serializer.is_valid():
-                # Get candidate name from Applicant model
-                try:
-                    applicant = Applicant.objects.get(
-                        email=serializer.validated_data['candidate_email']
+            # Get the most recent candidate application with this email
+            candidate_email = request.data.get('candidate_email')
+            try:
+                candidate = Applicant.objects.filter(
+                    email=candidate_email
+                ).order_by('created_at').first()
+                
+                if not candidate:
+                    return Response(
+                        {"error": "Candidate not found"}, 
+                        status=status.HTTP_404_NOT_FOUND
                     )
-                    candidate_name = f"{applicant.first_name} {applicant.last_name}"
-                except Applicant.DoesNotExist:
-                    candidate_name = "Unknown Candidate"
+            except Exception as e:
+                return Response(
+                    {"error": f"Error finding candidate: {str(e)}"}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
+            # Add candidate to request data
+            interview_data = {
+                **request.data,
+                'candidate': candidate.id,
+                'interviewer': request.user.id
+            }
+
+            serializer = InterviewSerializer(data=interview_data)
+            if serializer.is_valid():
                 interview = Interview.objects.create(
                     meeting_id=f"scheduled-interview-{uuid.uuid4()}",
                     interviewer=request.user,
-                    candidate_email=serializer.validated_data['candidate_email'],
+                    candidate=candidate,
                     scheduled_time=serializer.validated_data['scheduled_time'],
                     status='scheduled',
-                    candidate_name=candidate_name  # Add candidate name here
+                    type=serializer.validated_data['type']
                 )
-                
-                print("Created interview:", interview)
-                print("Interview fields:", {
-                    'id': interview.id,
-                    'meeting_id': interview.meeting_id,
-                    'interviewer': interview.interviewer,
-                    'candidate_email': interview.candidate_email,
-                    'candidate_name': interview.candidate_name,
-                    'scheduled_time': interview.scheduled_time,
-                    'status': interview.status
-                })
                 
                 return Response({
                     "message": "Interview scheduled successfully",
@@ -410,6 +415,8 @@ class NotifyScheduleView(APIView):
         try:
             email = request.data.get('email')
             scheduled_time = request.data.get('scheduledTime')
+            first_name = request.data.get('first_name', '')
+            last_name = request.data.get('last_name', '')
             
             if not email or not scheduled_time:
                 return Response(
@@ -417,14 +424,19 @@ class NotifyScheduleView(APIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
 
+            # Format the time
             formatted_time = datetime.fromisoformat(scheduled_time.replace('Z', '+00:00')).strftime(
                 "%B %d, %Y at %I:%M %p"
             )
 
+            # Context for scheduling notification only
             context = {
-                'scheduled_time': formatted_time
+                'scheduled_time': formatted_time,
+                'candidate_name': f"{first_name} {last_name}",
+                'interviewer_name': f"{request.user.first_name} {request.user.last_name}"
             }
 
+            # Send scheduling notification without meeting link
             send_email_with_template(
                 'schedule-invitation.html',
                 context,

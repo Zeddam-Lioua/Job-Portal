@@ -2,38 +2,36 @@ import React from "react";
 import { Row, Col, Card } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faCode,
+  faTruck,
+  faWrench,
   faIndustry,
-  faFlask,
-  faCog,
-  faChartLine,
-  faUserTie,
+  faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 
 const JobCategories = () => {
   const categories = [
     {
-      icon: faIndustry,
-      title: "Manufacturing",
+      icon: faTruck,
+      title: "Logistics",
       count: 15,
       color: "#FF6B6B",
     },
     {
-      icon: faFlask,
-      title: "R&D",
+      icon: faWrench,
+      title: "Maintenance",
       count: 8,
       color: "#4ECDC4",
     },
     {
-      icon: faCog,
-      title: "Operations",
+      icon: faIndustry,
+      title: "Production",
       count: 12,
       color: "#45B7D1",
     },
     {
-      icon: faChartLine,
-      title: "Management",
+      icon: faCheckCircle,
+      title: "Quality Control",
       count: 6,
       color: "#96CEB4",
     },

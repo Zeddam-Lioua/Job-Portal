@@ -79,7 +79,7 @@ const ScheduleMeetingModal = ({ show, onHide }) => {
       const response = await hrService.scheduleInterview(formattedData);
 
       if (response.data && response.data.meeting_id) {
-        await hrService.sendInterviewInvitation({
+        await hrService.sendScheduleNotification({
           email: meetingData.candidateEmail,
           meetingId: response.data.meeting_id,
           scheduledTime: meetingData.scheduledTime,

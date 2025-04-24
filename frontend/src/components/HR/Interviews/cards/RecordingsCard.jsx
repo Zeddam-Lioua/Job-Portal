@@ -10,15 +10,17 @@ const RecordingsCard = () => {
   return (
     <Col>
       <Card className="interview-card">
-        <Card.Body>
+        <Card.Body className="d-flex flex-column">
           <Card.Title>
             <FontAwesomeIcon icon={faVideo} className="me-2" />
             Interview Recordings
           </Card.Title>
-          <Card.Text>Access your past interview recordings.</Card.Text>
+          <Card.Text className="flex-grow-1">
+            Access your past interview recordings.
+          </Card.Text>
           <Button
             variant="primary"
-            className="w-100"
+            className="w-100 mt-auto"
             onClick={() => navigate("/admin/hr/dashboard/recordings")}
           >
             View Recordings

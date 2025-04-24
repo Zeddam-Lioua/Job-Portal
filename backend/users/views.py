@@ -20,8 +20,6 @@ from .serializers import CustomUserSerializer
 from backend.utils import DevelopmentSMSService
 
 
-# from .adapters import CustomGoogleOAuth2Adapter
-
 logger = logging.getLogger(__name__)
 
 
@@ -266,6 +264,7 @@ class UserInfoAPIView(RetrieveAPIView):
 
     def get_queryset(self):
         return CustomUser.objects.filter(id=self.request.user.id)
+
     
 class UserLogoutAPIView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
@@ -278,6 +277,37 @@ class UserLogoutAPIView(GenericAPIView):
             return Response(status=status.HTTP_205_RESET_CONTENT)
         except Exception as e:
             return Response(status= status.HTTP_400_BAD_REQUEST)
+        
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+    
+    def patch(self, request):
+        try:
+            user = request.user
+            if 'first_name' in request.data:
+                user.first_name = request.data['first_name']
+            if 'last_name' in request.data:
+                user.last_name = request.data['last_name']
+            if 'email' in request.data:
+                user.email = request.data['email']
+            if 'phone' in request.data:
+                user.phone = request.data['phone']
+            if 'profile_picture' in request.FILES:
+                user.profile_picture = request.FILES['profile_picture']
+            
+            user.save()
+            return Response({
+                'id': user.id,
+                'email': user.email,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'phone': user.phone,
+                'profile_picture': user.profile_picture.url if user.profile_picture else None,
+                'user_type': user.user_type
+            })
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SendPasswordChangeEmailView(APIView):
@@ -314,36 +344,6 @@ class TeamMembersView(APIView):
         
         return Response(users)
     
-# class GoogleLoginView(SocialLoginView):
-#     adapter_class = GoogleOAuth2Adapter
-#     callback_url = 'http://localhost:5173/oauth/google'
-#     client_class = OAuth2Client
-
-#     def post(self, request, *args, **kwargs):
-#         try:
-#             print("Received request data:", request.data)
-            
-#             # Handle both code and credential formats
-#             if 'code' in request.data:
-#                 # Exchange code for access token
-#                 response = requests.post('https://oauth2.googleapis.com/token', {
-#                     'code': request.data['code'],
-#                     'client_id': '190055214049-gojlcmlfhpam7bg8sfvjelevfa30dl8d.apps.googleusercontent.com',
-#                     'client_secret': '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',
-#                     'redirect_uri': self.callback_url,
-#                     'grant_type': 'authorization_code'
-#                 })
-                
-#                 if response.status_code == 200:
-#                     token_data = response.json()
-#                     request.data['access_token'] = token_data['access_token']
-#                 else:
-#                     return Response({"error": "Failed to exchange code for token"}, status=400)
-            
-#             return super().post(request, *args, **kwargs)
-#         except Exception as e:
-#             print("Error in GoogleLoginView:", str(e))
-#             return Response({"error": str(e)}, status=400)
 
 class NotificationListView(generics.ListAPIView):
     serializer_class = NotificationSerializer

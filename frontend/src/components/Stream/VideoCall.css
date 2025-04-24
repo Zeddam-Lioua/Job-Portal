@@ -20,3 +20,13 @@ button {
   padding: 1rem;
   background: rgba(0, 0, 0, 0.5);
 }
+
+/* Existing styles... */
+
+/* Update menu styles with more specific selectors */
+.str-video *,
+.str-video *::before,
+.str-video *::after {
+  box-sizing: border-box;
+  color: white;
+}

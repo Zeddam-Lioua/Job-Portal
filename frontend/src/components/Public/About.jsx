@@ -44,11 +44,11 @@ const About = () => {
           </div>
         </Col>
         <Col md={6}>
-          <img
+          {/* <img
             src="/images/company-building.jpg"
             alt="Faderco Headquarters"
             className="img-fluid rounded shadow-lg"
-          />
+          /> */}
         </Col>
       </Row>
 

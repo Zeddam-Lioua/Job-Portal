@@ -9,6 +9,7 @@ import {
   useCallStateHooks,
 } from "@stream-io/video-react-sdk";
 import VideoProvider from "./VideoProvider";
+import "./VideoCall.css";
 
 const VideoCall = ({
   userId,

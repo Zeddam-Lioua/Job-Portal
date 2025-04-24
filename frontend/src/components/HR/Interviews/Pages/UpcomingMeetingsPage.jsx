@@ -39,8 +39,23 @@ const UpcomingMeetingsPage = () => {
     fetchMeetings();
   }, []);
 
-  const handleStartMeeting = (meeting) => {
-    navigate(`/admin/hr/dashboard/interview/${meeting.meeting_id}`);
+  const handleStartMeeting = async (meeting) => {
+    try {
+      // Send meeting invitation
+      await hrService.sendInterviewInvitation({
+        email: meeting.candidate_email,
+        meetingId: meeting.meeting_id,
+        scheduledTime: meeting.scheduled_time,
+        first_name: meeting.candidate_name?.split(" ")[0] || "",
+        last_name: meeting.candidate_name?.split(" ")[1] || "",
+      });
+
+      // Navigate to the meeting room
+      navigate(`/admin/hr/dashboard/interview/${meeting.meeting_id}`);
+    } catch (error) {
+      console.error("Failed to start meeting:", error);
+      // You might want to add error handling UI here
+    }
   };
 
   const handleCancelMeeting = (meeting) => {

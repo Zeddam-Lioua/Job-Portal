@@ -51,16 +51,19 @@ const App = () => {
         <Router>
           <Navbar />
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<Home />} />
             <Route path="/job-list" element={<JobList />} />
+            <Route path="/apply/:id" element={<JobApplication />} />
             <Route path="/about" element={<About />} />
             <Route path="/career-resources" element={<CareerResources />} />
             <Route path="/contact" element={<Contact />} />
+
             <Route path="/admin" element={<Navigate to="/admin/login" />} />
             <Route path="/admin/login" element={<Login />} />
             <Route path="/admin/register" element={<Register />} />
             <Route path="/admin/verify-otp" element={<OTPVerification />} />
-            <Route path="/apply/:id" element={<JobApplication />} />
+
             <Route
               path="/guest/interview/:roomId"
               element={<GuestInterview />}

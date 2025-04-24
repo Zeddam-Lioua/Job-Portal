@@ -4,8 +4,8 @@
 
 {% block content %}
 <h2>Interview Scheduled</h2>
-<p>Dear Candidate,</p>
-<p>Your interview has been scheduled for <strong>{{ scheduled_time }}</strong>.</p>
-<p>You will receive another email with the meeting link closer to the interview time.</p>
+<p>Dear {{ candidate_name }},</p>
+<p>Your interview has been scheduled with {{ interviewer_name }} for {{ scheduled_time }}.</p>
+<p>You will receive another email with the meeting link when the interview is about to start.</p>
 <p>Best regards,<br>HR Team</p>
 {% endblock %}

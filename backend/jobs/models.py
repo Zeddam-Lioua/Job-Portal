@@ -20,7 +20,7 @@ class JobRequest(models.Model):
     )
     experience_level = models.CharField(max_length=50, choices=EXPERIENCE_LEVEL_CHOICES, verbose_name="Experience Level", help_text="Select the required experience level")
     EDUCATION_LEVEL_CHOICES = (
-        ('indiffirent', 'Indifferent'),
+        ('indifferent', 'Indifferent'), 
         ('high_school', 'High School'),
         ('bac', 'Bac'),
         ('bac+1', 'Bac +1'),

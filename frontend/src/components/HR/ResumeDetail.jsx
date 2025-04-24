@@ -76,18 +76,6 @@ const ResumeDetail = () => {
     }
   };
 
-  const scheduleInterview = async () => {
-    try {
-      const roomName = `${resume.id}-${resume.applicant.replace(" ", "-")}`;
-      const response = await hrService.scheduleInterview(id);
-      alert("Interview scheduled and email sent successfully.");
-      navigate(`/admin/hr/dashboard/interview/${roomName}`);
-    } catch (err) {
-      setError("Failed to schedule interview. Please try again.");
-      console.error("Error scheduling interview:", err);
-    }
-  };
-
   const formatDate = (dateString) => {
     if (!dateString) return "Pending";
     return new Date(dateString).toLocaleString("en-US", {
@@ -227,13 +215,6 @@ const ResumeDetail = () => {
               className="delete-resume-btn thin-button"
             >
               Delete Resume
-            </Button>
-            <Button
-              variant="secondary"
-              onClick={scheduleInterview}
-              className="schedule-interview-btn thin-button"
-            >
-              Schedule Interview
             </Button>
           </div>
         </Card.Body>

@@ -113,8 +113,8 @@ const Navigation = () => {
   return (
     <Navbar expand="lg" className="modern-navbar" variant="dark">
       <Container>
-        <Navbar.Brand as={Link} to="/">
-          <NavLogo color="#ffffff" />
+        <Navbar.Brand>
+          <NavLogo color="#ffffff" linkTo="/" />
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">

@@ -56,7 +56,7 @@ const updateApplicant = (id, data) => {
 };
 
 const deleteApplicant = (id) => {
-  return api.delete(`/applicant/${id}/`);
+  return api.delete(`/applicants/${id}/`);
 };
 
 const getAnalyticsStats = () => {
@@ -140,6 +140,16 @@ const getSuperCandidates = async () => {
   };
 };
 
+const getHiredApplicants = async () => {
+  try {
+    const response = await api.get("/applicants/?status=hired");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching hired applicants:", error);
+    throw error;
+  }
+};
+
 const updateApplicantStatus = (id, status) => {
   return api.patch(`/applicants/${id}/status/`, { status });
 };
@@ -205,6 +215,7 @@ const hrService = {
   getTalentPool,
   getCandidates,
   getSuperCandidates,
+  getHiredApplicants,
   updateApplicantStatus,
   savePerfomanceEvaluation,
   getPerformanceEvaluation,

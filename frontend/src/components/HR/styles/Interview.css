@@ -6,6 +6,7 @@
     color var(--transition-timing);
 }
 
+/* Update the interview card styles */
 .interview-card {
   height: 100%;
   display: flex;
@@ -19,7 +20,7 @@
 .interview-card .card-body {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  height: 100%;
   padding: 1.5rem;
 }
 
@@ -31,29 +32,14 @@
 
 .interview-card .card-text {
   color: var(--text-secondary);
-  margin-bottom: 1.5rem;
-  flex-grow: 1;
-  transition: color var(--transition-timing);
-}
-
-.interview-card .card-text {
-  color: var(--text-secondary);
-  margin-bottom: 1.5rem;
+  flex-grow: 1; /* This will push the button to the bottom */
+  margin-bottom: 1rem; /* Add space between text and button */
   transition: color var(--transition-timing);
 }
 
 .interview-card .btn {
-  margin-top: auto;
-  background: transparent;
-  color: var(--primary);
-  transition: background-color var(--transition-timing),
-    color var(--transition-timing);
-}
-
-.interview-card .btn:hover {
-  background: var(--primary);
-  color: #ffffff;
-  transform: none !important;
+  margin-top: auto; /* Ensures button stays at bottom */
+  width: 100%;
 }
 
 /* Theme-specific overrides */

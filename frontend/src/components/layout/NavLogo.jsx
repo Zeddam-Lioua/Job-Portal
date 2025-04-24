@@ -149,12 +149,12 @@ m389 -999 c126 -276 309 -774 386 -1052 l20 -73 -574 0 c-461 0 -574 3 -574
     </div>
   );
 
-  // If linkTo is "#" or we're in About page, don't wrap in Link
+  // If linkTo is "#", render without Link
   if (linkTo === "#") {
     return <LogoSvg />;
   }
 
-  // Otherwise, wrap in Link for navigation
+  // Otherwise wrap in Link
   return (
     <Link to={linkTo}>
       <LogoSvg />

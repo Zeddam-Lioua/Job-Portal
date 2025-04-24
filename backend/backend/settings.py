@@ -66,7 +66,6 @@ MIDDLEWARE = [
 # Allow all origins to embed the site in an iframe
 X_FRAME_OPTIONS = 'ALLOWALL'
 
-
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
@@ -87,12 +86,12 @@ TEMPLATES = [
     },
 ]
 
+
+
 WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.asgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -104,10 +103,6 @@ DATABASES = {
         'PORT': '5432',                # Default PostgreSQL port
     }
 }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_USER_MODEL = 'users.CustomUser'
 

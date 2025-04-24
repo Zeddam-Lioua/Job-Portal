@@ -31,6 +31,7 @@ const googleLogin = async (credential) => {
 
     if (response.data.access) {
       // Set auth headers for future requests
+      response.data.API_URL = API_URL;
       api.defaults.headers.common[
         "Authorization"
       ] = `JWT ${response.data.access}`;
@@ -185,7 +186,11 @@ const getCurrentUser = async () => {
 
 const updateUser = async (data) => {
   try {
-    const response = await api.put("/user/", data);
+    const response = await api.patch("/user/profile/", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Failed to update user:", error);

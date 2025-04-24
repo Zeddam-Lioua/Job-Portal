@@ -25,8 +25,20 @@ const CreateRequest = () => {
     setLoading(true);
     setError(null);
     setSuccess(null);
+
     try {
-      await dmService.createJobRequest(formData);
+      const requestData = {
+        field: formData.field,
+        required_employees: parseInt(formData.required_employees),
+        experience_level: formData.experience_level,
+        education_level: formData.education_level,
+        workplace: formData.workplace,
+        status: "pending",
+      };
+
+      console.log("Sending request data:", requestData); // Debug log
+
+      const response = await dmService.createJobRequest(requestData);
       setSuccess("Request created successfully!");
       setFormData({
         field: "",
@@ -36,8 +48,11 @@ const CreateRequest = () => {
         workplace: "",
       });
     } catch (err) {
-      setError("Failed to create request. Please try again.");
-      console.error("Error creating request:", err);
+      console.error("API Error Response:", err.response?.data);
+      const errorMessage =
+        err.response?.data?.education_level?.[0] ||
+        "Failed to create request. Please try again.";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -99,7 +114,7 @@ const CreateRequest = () => {
                 required
               >
                 <option value="">Select Education Level</option>
-                <option value="indiffirent">Indiffirent</option>
+                <option value="indifferent">Indifferent</option>
                 <option value="high_school">High School</option>
                 <option value="bac">Bac</option>
                 <option value="bac+1">Bac +1</option>

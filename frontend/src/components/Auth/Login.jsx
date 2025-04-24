@@ -51,15 +51,16 @@ export default function Login() {
       setIsLoading(true);
       setError("");
 
-      console.log("Received Google credential:", credentialResponse);
       const response = await googleLogin(credentialResponse.credential);
-      console.log("Auth response:", response);
 
       if (response?.user) {
+        // Add a small delay to ensure state is updated
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
         if (response.user.user_type === "human_resources") {
-          setTimeout(() => navigate("/admin/hr/dashboard"), 100);
+          navigate("/admin/hr/dashboard");
         } else if (response.user.user_type === "district_manager") {
-          setTimeout(() => navigate("/admin/dm/dashboard"), 100);
+          navigate("/admin/dm/dashboard");
         } else {
           setError("Invalid user type");
         }

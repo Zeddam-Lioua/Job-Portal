@@ -60,38 +60,48 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        password = validated_data.pop('password1')
-        validated_data.pop('password2')
-        validated_data.pop('otp', None)
-        
-        user = CustomUser.objects.create_user(
-            password=password,
-            is_active=False,
-            **validated_data
-        )
+        try:
+            password = validated_data.pop('password1')
+            validated_data.pop('password2', None)
+            validated_data.pop('otp', None)
+            
+            # Create user
+            user = CustomUser.objects.create_user(
+                password=password,
+                is_active=False,
+                **validated_data
+            )
 
-        # Generate and save OTP
-        otp = OTPVerification.generate_otp()
-        OTPVerification.objects.create(user=user, otp=otp)
+            # Generate OTP
+            otp = OTPVerification.generate_otp()
+            OTPVerification.objects.create(user=user, otp=otp)
 
-        # Prepare email
-        html_message = render_to_string('email/otp_verification.html', {
-            'otp': otp,
-            'user': user
-        })
-        plain_message = strip_tags(html_message)
-        
-        # Send OTP email
-        send_mail(
-            'Verify your email',
-            plain_message,
-            settings.DEFAULT_FROM_EMAIL,
-            [user.email],
-            html_message=html_message,
-            fail_silently=False,
-        )
+            # Send email
+            subject = 'Verify your email - Job Portal'
+            html_message = render_to_string('email/otp_verification.html', {
+                'otp': otp,
+                'user': user
+            })
+            plain_message = strip_tags(html_message)
 
-        return user
+            try:
+                send_mail(
+                    subject,
+                    plain_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    html_message=html_message,
+                    fail_silently=False,
+                )
+            except Exception as e:
+                print(f"Error sending email: {str(e)}")
+                raise serializers.ValidationError(f"Failed to send verification email: {str(e)}")
+
+            return user
+            
+        except Exception as e:
+            print(f"Error in create: {str(e)}")
+            raise serializers.ValidationError(f"Failed to create user: {str(e)}")
 
     def create(self, validated_data):
         password = validated_data.pop("password1")

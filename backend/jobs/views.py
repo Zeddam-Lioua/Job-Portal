@@ -5,8 +5,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from django.db.models import Count, Avg, F
-from urllib.parse import quote
+from django.db.models import ExpressionWrapper, DurationField, Avg, F, Count
+from django.db.models.functions import TruncDate
+from datetime import timedelta, datetime
 
 from .models import *
 from .serializers import *
@@ -15,7 +16,6 @@ from django.contrib.auth import get_user_model
 
 from django.conf import settings
 from django.core.mail import send_mail
-from django.urls import reverse
 from django.utils import timezone
 import logging
 
@@ -88,8 +88,16 @@ class JobPostViewSet(viewsets.ModelViewSet):
     serializer_class = JobPostSerializer
     permission_classes = [permissions.AllowAny]
 
-    def get_queryset(self):
-        return JobPost.objects.filter(is_active=True)
+    def update(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class ApplicantViewSet(viewsets.ModelViewSet):
     queryset = Applicant.objects.all()
@@ -114,9 +122,6 @@ class ApplicantCreateView(generics.CreateAPIView):
             job_post_id = self.request.data.get('job_post')
             job_post = JobPost.objects.get(id=job_post_id)
             
-            # Get email from request data
-            applicant_email = self.request.data.get('email')
-
             # Save applicant with required fields
             applicant = serializer.save(
                 job_post=job_post,
@@ -132,29 +137,6 @@ class ApplicantCreateView(generics.CreateAPIView):
                     title='New Application',
                     message=f'New application received from {applicant.first_name} {applicant.last_name}',
                     link=f'/admin/hr/dashboard/applicants/{applicant.id}'
-                )
-            
-            # Check if user exists or create new one
-            User = get_user_model()
-            user, created = User.objects.get_or_create(
-                email=applicant_email,
-                defaults={
-                    'username': applicant_email,
-                    'is_active': False
-                }
-            )
-
-            # Send OTP if user is not active
-            if not user.is_active:
-                otp = OTPVerification.generate_otp()
-                OTPVerification.objects.create(user=user, otp=otp)
-                
-                send_mail(
-                    'Verify your email',
-                    f'Your verification code is: {otp}',
-                    settings.DEFAULT_FROM_EMAIL,
-                    [applicant_email],
-                    fail_silently=False,
                 )
             
             return applicant
@@ -189,10 +171,21 @@ class JobPostDetailView(generics.RetrieveAPIView):
     serializer_class = JobPostSerializer
     permission_classes = [permissions.IsAuthenticated]
 
-class ApplicantDetailView(generics.RetrieveAPIView):
+class ApplicantDetailView(generics.RetrieveDestroyAPIView):
     queryset = Applicant.objects.all()
     serializer_class = ApplicantSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Exception as e:
+            return Response(
+                {"error": str(e)}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 class AnalyticsStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -201,19 +194,79 @@ class AnalyticsStatsView(APIView):
         try:
             total_applications = Applicant.objects.count()
             total_job_posts = JobPost.objects.count()
-            total_hires = Applicant.objects.filter(status='accepted').count()
-            applications_per_job = JobPost.objects.annotate(applications=Count('applicant')).values('field', 'applications')
-            average_time_to_hire = Applicant.objects.filter(status='accepted').annotate(time_to_hire=F('hired_date') - F('created_at')).aggregate(Avg('time_to_hire'))['time_to_hire__avg']
-            application_conversion_rate = (total_hires / total_applications) * 100 if total_applications > 0 else 0
+            total_requests = JobRequest.objects.count()
+            total_hires = Applicant.objects.filter(status='hired').count()
+            applications_per_job = JobPost.objects.annotate(
+                applications=Count('applicant')
+            ).values('field', 'applications')
+
+            # Fix for average time to hire calculation
+            hired_applicants = Applicant.objects.filter(status='hired').annotate(
+                time_to_hire=ExpressionWrapper(
+                    F('hired_date') - F('created_at'),
+                    output_field=DurationField()
+                )
+            )
+            
+            if hired_applicants.exists():
+                total_days = sum(
+                    (applicant.time_to_hire.days 
+                     for applicant in hired_applicants 
+                     if applicant.time_to_hire)
+                )
+                average_days = total_days / hired_applicants.count()
+            else:
+                average_days = 0
+
+            application_conversion_rate = (total_hires / total_applications * 100) if total_applications > 0 else 0
 
             stats = {
                 'totalApplications': total_applications,
                 'totalJobPosts': total_job_posts,
                 'totalHires': total_hires,
                 'applicationsPerJob': list(applications_per_job),
-                'averageTimeToHire': average_time_to_hire,
-                'applicationConversionRate': application_conversion_rate,
+                'averageTimeToHire': round(average_days, 1),  # Round to 1 decimal place
+                'applicationConversionRate': round(application_conversion_rate, 2),  # Round to 2 decimal places
             }
+
+            time_range = request.query_params.get('time_range', 'all')
+            
+            # Calculate date range
+            if time_range == 'week':
+                start_date = timezone.now() - timedelta(days=7)
+            elif time_range == 'month':
+                start_date = timezone.now() - timedelta(days=30)
+            else:
+                start_date = None
+
+            # Base queryset filters
+            date_filter = {'created_at__gte': start_date} if start_date else {}
+            
+            # Add new analytics
+            applications_per_day = (
+                Applicant.objects.filter(**date_filter)
+                .annotate(date=TruncDate('created_at'))
+                .values('date')
+                .annotate(count=Count('id'))
+                .order_by('date')
+            )
+
+            job_posts_per_day = (
+                JobPost.objects.filter(**date_filter)
+                .annotate(date=TruncDate('created_at'))
+                .values('date')
+                .annotate(count=Count('id'))
+                .order_by('date')
+            )
+
+            # Add new stats to existing response
+            stats.update({
+                # ... existing stats remain unchanged ...
+                'applicationsPerDay': list(applications_per_day),
+                'jobPostsPerDay': list(job_posts_per_day),
+                'totalRequests': total_requests,
+            })
+        
 
             return Response(stats)
         except Exception as e:
@@ -249,12 +302,12 @@ class TalentPoolView(APIView):
         try:
             candidates = Applicant.objects.filter(status='candidate')
             super_candidates = Applicant.objects.filter(status='super_candidate')
-            hirees = Applicant.objects.filter(status='hiree')
+            hired = Applicant.objects.filter(status='hired')
 
             return Response({
                 'candidates': ApplicantSerializer(candidates, many=True).data,
                 'superCandidates': ApplicantSerializer(super_candidates, many=True).data,
-                'hirees': ApplicantSerializer(hirees, many=True).data
+                'hired': ApplicantSerializer(hired, many=True).data
             })
         except Exception as e:
             return Response(
@@ -277,7 +330,7 @@ class UpdateApplicantStatusView(APIView):
                 )
             
             applicant.status = new_status
-            if new_status == 'hiree':
+            if new_status == 'hired':
                 applicant.hired_date = timezone.now()
             applicant.save()
             

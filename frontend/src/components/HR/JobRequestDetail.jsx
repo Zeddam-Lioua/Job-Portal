@@ -164,7 +164,7 @@ const JobRequestDetail = () => {
                 required
               >
                 <option value="">Select Education Level</option>
-                <option value="indiffirent">Indiffirent</option>
+                <option value="indifferent">Indifferent</option>
                 <option value="high_school">High School</option>
                 <option value="bac">Bac</option>
                 <option value="bac+1">Bac +1</option>

@@ -31,16 +31,22 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("first_name", formData.first_name);
+      formDataToSend.append("last_name", formData.last_name);
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("phone", formData.phone);
+
       if (profilePicture) {
-        const formData = new FormData();
-        formData.append("profile_picture", profilePicture);
-        await uploadProfilePicture(formData);
+        formDataToSend.append("profile_picture", profilePicture);
       }
-      await updateUser(formData);
+
+      await updateUser(formDataToSend);
       setSuccess("Profile updated successfully!");
       setIsEditing(false);
     } catch (err) {
       setError("Failed to update profile. Please try again.");
+      console.error("Profile update error:", err);
     }
   };
 

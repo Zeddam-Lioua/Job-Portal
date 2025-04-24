@@ -38,6 +38,19 @@
     border-color var(--transition-timing), color var(--transition-timing);
 }
 
+.analytics-chart-card .dropdown-toggle::after {
+  display: none;
+}
+
+.analytics-chart-card .dropdown-toggle {
+  padding: 0.25rem 0.5rem;
+  color: var(--text-secondary);
+}
+
+.analytics-chart-card .dropdown-toggle:hover {
+  background-color: var(--surface-hover);
+}
+
 .text-muted {
   color: var(--text-secondary) !important;
   transition: color var(--transition-timing);

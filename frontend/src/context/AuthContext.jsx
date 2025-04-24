@@ -98,15 +98,23 @@ const AuthProvider = ({ children }) => {
   const googleLogin = async (credential) => {
     try {
       const response = await authService.googleLogin(credential);
+
       if (response?.access) {
-        // Set the token in axios default headers
         api.defaults.headers.common["Authorization"] = `JWT ${response.access}`;
 
-        // Store tokens and user data
         localStorage.setItem("accessToken", response.access);
         localStorage.setItem("refreshToken", response.refresh);
 
         if (response.user) {
+          // Ensure profile picture URL is complete
+          const API_URL = response.API_URL; // Get API_URL from the response
+          if (
+            response.user.profile_picture &&
+            !response.user.profile_picture.startsWith("http")
+          ) {
+            response.user.profile_picture = `${API_URL}${response.user.profile_picture}`;
+          }
+
           setUser(response.user);
           setIsAuthenticated(true);
           localStorage.setItem("user", JSON.stringify(response.user));

@@ -102,10 +102,10 @@ const TalentCard = ({ talent, type }) => {
                 {type === "super_candidate" && (
                   <Dropdown.Item
                     onClick={() =>
-                      hrService.updateApplicantStatus(talent.id, "hiree")
+                      hrService.updateApplicantStatus(talent.id, "hired")
                     }
                   >
-                    Promote to Hiree
+                    Promote to Hired
                   </Dropdown.Item>
                 )}
               </Dropdown.Menu>
@@ -224,24 +224,23 @@ const TalentList = ({ talents, type }) => {
 };
 
 const TalentPool = () => {
-  const [talents, setTalents] = useState({
-    candidates: [],
-    superCandidates: [],
-    hirees: [],
-  });
-
-  const fetchTalents = async () => {
-    try {
-      const response = await hrService.getTalentPool();
-      // Make sure the evaluation data is included in the response
-      setTalents(response.data);
-    } catch (error) {
-      console.error("Error fetching talents:", error);
-    }
-  };
+  const [candidates, setCandidates] = useState([]);
+  const [superCandidates, setSuperCandidates] = useState([]);
+  const [hired, setHired] = useState([]);
 
   useEffect(() => {
-    fetchTalents();
+    const fetchTalentPool = async () => {
+      try {
+        const response = await hrService.getTalentPool();
+        setCandidates(response.data.candidates);
+        setSuperCandidates(response.data.superCandidates);
+        setHired(response.data.hired);
+      } catch (error) {
+        console.error("Error fetching talent pool:", error);
+      }
+    };
+
+    fetchTalentPool();
   }, []);
 
   return (
@@ -249,16 +248,13 @@ const TalentPool = () => {
       <h2 className="mb-4">Talent Pool</h2>
       <Tabs defaultActiveKey="candidates" className="mb-4 theme-tabs">
         <Tab eventKey="candidates" title="Candidates">
-          <TalentList talents={talents.candidates} type="candidate" />
+          <TalentList talents={candidates} type="candidate" />
         </Tab>
         <Tab eventKey="superCandidates" title="Super Candidates">
-          <TalentList
-            talents={talents.superCandidates}
-            type="super_candidate"
-          />
+          <TalentList talents={superCandidates} type="super_candidate" />
         </Tab>
-        <Tab eventKey="hirees" title="Hirees">
-          <TalentList talents={talents.hirees} type="hiree" />
+        <Tab eventKey="hired" title="Hired">
+          <TalentList talents={hired} type="hired" />
         </Tab>
       </Tabs>
     </Container>
