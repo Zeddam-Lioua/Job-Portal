@@ -1,48 +1,50 @@
 from rest_framework import serializers
-from .models import *
-from users.serializers import CustomUserSerializer
-
-class JobRequestSerializer(serializers.ModelSerializer):
-    district_manager_name = serializers.CharField(source='district_manager.username', read_only=True)
-
-    class Meta:
-        model = JobRequest
-        fields = ['id', 'field', 'required_employees', 'experience_level', 'education_level', 'workplace', 'status', 'created_at', 'district_manager', 'district_manager_name']
-        read_only_fields = ['status', 'district_manager']
+from users.models import Applicant
+from .models import JobPost, PerformanceEvaluation
 
 class JobPostSerializer(serializers.ModelSerializer):
-    human_resources_name = serializers.ReadOnlyField(source='human_resources.get_full_name')
+    company_name = serializers.CharField(source='company.name', read_only=True)
 
     class Meta:
         model = JobPost
-        fields = ['id', 'job_request', 'field', 'required_employees', 'experience_level', 'education_level', 'workplace', 'contract_type', 'created_at', 'human_resources', 'human_resources_name', 'is_active']
-        read_only_fields = ['human_resources']
+        fields = [
+            'id', 'field', 'required_employees', 'experience_level', 'education_level',
+            'workplace', 'contract_type', 'status', 'created_at', 'updated_at',
+            'company', 'company_name', 'is_active'
+        ]
+        read_only_fields = ['company', 'company_name']
+
+class PerformanceEvaluationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PerformanceEvaluation
+        fields = [
+            'technical_skills', 'communication',
+            'problem_solving', 'teamwork', 'leadership', 
+            'adaptability', 'work_ethic', 'creativity'
+        ]
 
 class ApplicantSerializer(serializers.ModelSerializer):
-    job_post_name = serializers.CharField(source='job_post.field', read_only=True)
-    district_manager_name = serializers.SerializerMethodField()
     full_name = serializers.SerializerMethodField()
-    evaluation = serializers.SerializerMethodField()  # Change to SerializerMethodField
+    evaluation = serializers.SerializerMethodField()
+    job_post_name = serializers.CharField(source='job_post.field', read_only=True)
 
     class Meta:
         model = Applicant
-        fields = ['id', 'first_name', 'last_name', 'full_name', 'email', 'phone', 
-                 'job_post', 'job_post_name', 'district_manager_name', 
-                 'resume_file', 'status', 'updated_at', 'created_at', 'hired_date',
-                 'evaluation']
-        read_only_fields = ['created_at', 'updated_at', 'evaluation']
-    
+        fields = [
+            'id', 'first_name', 'last_name', 'full_name', 'email', 'phone',
+            'profile_picture', 'preferred_occupation', 'preferred_industry',
+            'current_situation', 'post_level', 'expected_salary', 'availability_days',
+            'mobility', 'preferred_workplace', 'years_of_experience', 'location',
+            'skills', 'resume_file', 'military_service', 'driving_license',
+            'valid_passport', 'created_at', 'updated_at', 'evaluation', 'job_post_name',
+            'status', 'hired_date'
+        ]
+        read_only_fields = ['created_at', 'updated_at', 'evaluation', 'job_post_name']
+
     def get_full_name(self, obj):
         return obj.get_full_name()
-    
-    def get_district_manager_name(self, obj):
-        try:
-            return obj.job_post.district_manager.get_full_name()
-        except AttributeError:
-            return None
 
     def get_evaluation(self, obj):
-        # Get or create evaluation for the applicant
         evaluation, created = PerformanceEvaluation.objects.get_or_create(
             applicant=obj,
             defaults={
@@ -57,13 +59,3 @@ class ApplicantSerializer(serializers.ModelSerializer):
             }
         )
         return PerformanceEvaluationSerializer(evaluation).data
-    
-
-class PerformanceEvaluationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PerformanceEvaluation
-        fields = [
-            'technical_skills', 'communication',
-            'problem_solving', 'teamwork', 'leadership', 
-            'adaptability', 'work_ethic', 'creativity'
-        ]

@@ -1,6 +1,7 @@
 # users/serializers.py
 from rest_framework import serializers
 from .models import *
+from core.models import *
 from django.contrib.auth import authenticate
 from djoser.serializers import UserCreateSerializer
 from .models import OTPVerification
@@ -126,3 +127,29 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = ['id', 'sender_type', 'sender_user', 'notification_type', 
                  'title', 'message', 'link', 'is_read', 'created_at', 'entity_id']
+        
+class ApplicantEducationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicantEducation
+        fields = '__all__'
+
+class ApplicantExperienceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApplicantExperience
+        fields = '__all__'
+
+class ApplicantSerializer(serializers.ModelSerializer):
+    education = ApplicantEducationSerializer(many=True, read_only=True)
+    experiences = ApplicantExperienceSerializer(many=True, read_only=True)
+    skills = serializers.PrimaryKeyRelatedField(queryset=Skill.objects.all(), many=True)
+    languages = serializers.PrimaryKeyRelatedField(queryset=Language.objects.all(), many=True)
+    preferred_occupation = serializers.PrimaryKeyRelatedField(queryset=Occupation.objects.all(), allow_null=True)
+
+    class Meta:
+        model = Applicant
+        fields = '__all__'
+
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = '__all__'

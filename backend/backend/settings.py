@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'core',
     'jobs',
     'users',
     'interviews',
@@ -67,6 +68,8 @@ MIDDLEWARE = [
 X_FRAME_OPTIONS = 'ALLOWALL'
 
 ROOT_URLCONF = 'backend.urls'
+
+ESCO_DATA_PATH = os.path.join(BASE_DIR, 'data', 'esco')
 
 TEMPLATES = [
     {

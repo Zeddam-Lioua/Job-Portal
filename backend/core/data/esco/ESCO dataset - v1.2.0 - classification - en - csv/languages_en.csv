@@ -1,0 +1,185 @@
+639-1,name,native_name
+aa,Afar,Afar
+ab,Abkhazian,Abkhazian
+af,Afrikaans,Afrikaans
+ak,Akan,Akan
+am,Amharic,Amharic
+ar,Arabic,Arabic
+an,Aragonese,Aragonese
+as,Assamese,Assamese
+av,Avaric,Avaric
+ae,Avestan,Avestan
+ay,Aymara,Aymara
+az,Azerbaijani,Azerbaijani
+ba,Bashkir,Bashkir
+bm,Bambara,Bambara
+be,Belarusian,Belarusian
+bn,Bengali,Bengali
+bi,Bislama,Bislama
+bo,Tibetan,Tibetan
+bs,Bosnian,Bosnian
+br,Breton,Breton
+bg,Bulgarian,Bulgarian
+ca,Catalan,Catalan
+cs,Czech,Czech
+ch,Chamorro,Chamorro
+ce,Chechen,Chechen
+cu,Church Slavic,Church Slavic
+cv,Chuvash,Chuvash
+kw,Cornish,Cornish
+co,Corsican,Corsican
+cr,Cree,Cree
+cy,Welsh,Welsh
+da,Danish,Danish
+de,German,German
+dv,Dhivehi,Dhivehi
+dz,Dzongkha,Dzongkha
+el,Modern Greek (1453-),Modern Greek (1453-)
+en,English,English
+eo,Esperanto,Esperanto
+et,Estonian,Estonian
+eu,Basque,Basque
+ee,Ewe,Ewe
+fo,Faroese,Faroese
+fa,Persian,Persian
+fj,Fijian,Fijian
+fi,Finnish,Finnish
+fr,French,French
+fy,Western Frisian,Western Frisian
+ff,Fulah,Fulah
+gd,Scottish Gaelic,Scottish Gaelic
+ga,Irish,Irish
+gl,Galician,Galician
+gv,Manx,Manx
+gn,Guarani,Guarani
+gu,Gujarati,Gujarati
+ht,Haitian,Haitian
+ha,Hausa,Hausa
+sh,Serbo-Croatian,Serbo-Croatian
+he,Hebrew,Hebrew
+hz,Herero,Herero
+hi,Hindi,Hindi
+ho,Hiri Motu,Hiri Motu
+hr,Croatian,Croatian
+hu,Hungarian,Hungarian
+hy,Armenian,Armenian
+ig,Igbo,Igbo
+io,Ido,Ido
+ii,Sichuan Yi,Sichuan Yi
+iu,Inuktitut,Inuktitut
+ie,Interlingue,Interlingue
+ia,Interlingua (International Auxiliary Language Association),Interlingua (International Auxiliary Language Association)
+id,Indonesian,Indonesian
+ik,Inupiaq,Inupiaq
+is,Icelandic,Icelandic
+it,Italian,Italian
+jv,Javanese,Javanese
+ja,Japanese,Japanese
+kl,Kalaallisut,Kalaallisut
+kn,Kannada,Kannada
+ks,Kashmiri,Kashmiri
+ka,Georgian,Georgian
+kr,Kanuri,Kanuri
+kk,Kazakh,Kazakh
+km,Central Khmer,Central Khmer
+ki,Kikuyu,Kikuyu
+rw,Kinyarwanda,Kinyarwanda
+ky,Kirghiz,Kirghiz
+kv,Komi,Komi
+kg,Kongo,Kongo
+ko,Korean,Korean
+kj,Kuanyama,Kuanyama
+ku,Kurdish,Kurdish
+lo,Lao,Lao
+la,Latin,Latin
+lv,Latvian,Latvian
+li,Limburgan,Limburgan
+ln,Lingala,Lingala
+lt,Lithuanian,Lithuanian
+lb,Luxembourgish,Luxembourgish
+lu,Luba-Katanga,Luba-Katanga
+lg,Ganda,Ganda
+mh,Marshallese,Marshallese
+ml,Malayalam,Malayalam
+mr,Marathi,Marathi
+mk,Macedonian,Macedonian
+mg,Malagasy,Malagasy
+mt,Maltese,Maltese
+mn,Mongolian,Mongolian
+mi,Maori,Maori
+ms,Malay (macrolanguage),Malay (macrolanguage)
+my,Burmese,Burmese
+na,Nauru,Nauru
+nv,Navajo,Navajo
+nr,South Ndebele,South Ndebele
+nd,North Ndebele,North Ndebele
+ng,Ndonga,Ndonga
+ne,Nepali (macrolanguage),Nepali (macrolanguage)
+nl,Dutch,Dutch
+nn,Norwegian Nynorsk,Norwegian Nynorsk
+nb,Norwegian Bokmål,Norwegian Bokmål
+no,Norwegian,Norwegian
+ny,Nyanja,Nyanja
+oc,Occitan (post 1500),Occitan (post 1500)
+oj,Ojibwa,Ojibwa
+or,Oriya (macrolanguage),Oriya (macrolanguage)
+om,Oromo,Oromo
+os,Ossetian,Ossetian
+pa,Panjabi,Panjabi
+pi,Pali,Pali
+pl,Polish,Polish
+pt,Portuguese,Portuguese
+ps,Pushto,Pushto
+qu,Quechua,Quechua
+rm,Romansh,Romansh
+ro,Romanian,Romanian
+rn,Rundi,Rundi
+ru,Russian,Russian
+sg,Sango,Sango
+sa,Sanskrit,Sanskrit
+si,Sinhala,Sinhala
+sk,Slovak,Slovak
+sl,Slovenian,Slovenian
+se,Northern Sami,Northern Sami
+sm,Samoan,Samoan
+sn,Shona,Shona
+sd,Sindhi,Sindhi
+so,Somali,Somali
+st,Southern Sotho,Southern Sotho
+es,Spanish,Spanish
+sq,Albanian,Albanian
+sc,Sardinian,Sardinian
+sr,Serbian,Serbian
+ss,Swati,Swati
+su,Sundanese,Sundanese
+sw,Swahili (macrolanguage),Swahili (macrolanguage)
+sv,Swedish,Swedish
+ty,Tahitian,Tahitian
+ta,Tamil,Tamil
+tt,Tatar,Tatar
+te,Telugu,Telugu
+tg,Tajik,Tajik
+tl,Tagalog,Tagalog
+th,Thai,Thai
+ti,Tigrinya,Tigrinya
+to,Tonga (Tonga Islands),Tonga (Tonga Islands)
+tn,Tswana,Tswana
+ts,Tsonga,Tsonga
+tk,Turkmen,Turkmen
+tr,Turkish,Turkish
+tw,Twi,Twi
+ug,Uighur,Uighur
+uk,Ukrainian,Ukrainian
+ur,Urdu,Urdu
+uz,Uzbek,Uzbek
+ve,Venda,Venda
+vi,Vietnamese,Vietnamese
+vo,Volapük,Volapük
+wa,Walloon,Walloon
+wo,Wolof,Wolof
+xh,Xhosa,Xhosa
+yi,Yiddish,Yiddish
+yo,Yoruba,Yoruba
+za,Zhuang,Zhuang
+zh,Chinese,Chinese
+zu,Zulu,Zulu

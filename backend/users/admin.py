@@ -1,8 +1,7 @@
 from django.contrib import admin
-from .models import CustomUser
-from .forms import CustomUserChangeForm, CustomUserCreationForm
+from .models import *
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, OTPVerification
+
 
 class CustomUserAdmin(UserAdmin):
     list_display = ('email', 'first_name', 'last_name', 'user_type', 'is_active', 'date_joined')
@@ -26,3 +25,24 @@ class CustomUserAdmin(UserAdmin):
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(OTPVerification)
+
+@admin.register(Applicant)
+class ApplicantAdmin(admin.ModelAdmin):
+    list_display = ['first_name', 'last_name', 'email', 'preferred_occupation', 'preferred_industry', 'created_at']
+    search_fields = ['first_name', 'last_name', 'email']
+
+@admin.register(ApplicantEducation)
+class ApplicantEducationAdmin(admin.ModelAdmin):
+    list_display = ['applicant', 'title', 'degree_level', 'school', 'start_date', 'end_date']
+    search_fields = ['title', 'school']
+
+@admin.register(ApplicantExperience)
+class ApplicantExperienceAdmin(admin.ModelAdmin):
+    list_display = ['applicant', 'company', 'occupation', 'industry', 'start_date', 'end_date']
+    search_fields = ['company', 'occupation__title']
+
+@admin.register(Company)
+class CompanyAdmin(admin.ModelAdmin):
+    list_display = ['name', 'industry', 'size', 'is_verified', 'created_at']
+    search_fields = ['name', 'industry']
+    list_filter = ['is_verified', 'industry']

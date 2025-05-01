@@ -1,7 +1,12 @@
-from django.urls import path
+from django.urls import path, include
 from .views import *
 from rest_framework_simplejwt.views import TokenRefreshView
 from .social_auth import GoogleOAuth2View
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'applicants', ApplicantViewSet)
+router.register(r'companies', CompanyViewSet)
 
 urlpatterns = [
     path("register/", UserRegistrationAPIView.as_view(), name="register-user"),
@@ -21,4 +26,5 @@ urlpatterns = [
     path('notifications/<int:pk>/', NotificationDetailView.as_view(), name='notification-detail'),
     path('notifications/mark_all_as_read/', NotificationMarkAllReadView.as_view(), name='notification-mark-all-read'),
     path('auth/o/google-oauth2/', GoogleOAuth2View.as_view(), name='google-oauth2'),
+    path('', include(router.urls)),
 ]

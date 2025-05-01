@@ -22,82 +22,43 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-class JobRequestViewSet(viewsets.ModelViewSet):
-    serializer_class = JobRequestSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.user_type == 'district_manager':
-            return JobRequest.objects.filter(district_manager=user)
-        elif user.user_type == 'human_resources':
-            return JobRequest.objects.all()
-        return JobRequest.objects.none()
+class JobPostViewSet(viewsets.ModelViewSet):
+    queryset = JobPost.objects.all()
+    serializer_class = JobPostSerializer
 
     def perform_create(self, serializer):
-        # Save the job request first
-        job_request = serializer.save(district_manager=self.request.user)
+        company = self.request.user.company
+        serializer.save(company=company, status='pending')
 
-        # Then create notifications for HR users
-        hr_users = get_user_model().objects.filter(user_type='human_resources')
-        for hr_user in hr_users:
-            Notification.objects.create(
-                recipient=hr_user,
-                sender_type='user',
-                sender_user=self.request.user,
-                notification_type='job_request',
-                title='New Job Request',
-                message=f'New job request received for {job_request.field}',
-                link=f'/admin/hr/dashboard/job-requests',
-                entity_id=job_request.id
-        )
     @action(detail=True, methods=['post'])
-    def process_request(self, request, pk=None):
-        if request.user.user_type != 'human_resources':
+    def process_post(self, request, pk=None):
+        # Only admin can process
+        if not request.user.is_authenticated or request.user.user_type != 'admin':
             return Response(
-                {'error': 'Only Human Resources can process requests'},
+                {'error': 'Only Admin can process job posts'},
                 status=status.HTTP_403_FORBIDDEN
             )
-        
-        action = request.data.get('action')
-        job_request = self.get_object()
-        
-        if action == 'approve':
-            job_request.status = 'approved'
-            job_request.save()
-            JobPost.objects.create(
-                job_request=job_request,
-                field=job_request.field,
-                required_employees=job_request.required_employees,
-                experience_level=job_request.experience_level,
-                education_level=job_request.education_level,
-                workplace=job_request.workplace,
-                contract_type=request.data.get('contract_type', 'indifferent'),
-                human_resources=request.user
+
+        action_type = request.data.get('action')
+        job_post = self.get_object()
+
+        if action_type == 'approve':
+            job_post.status = 'published'
+            job_post.is_active = True
+            job_post.verified_by = request.user
+            job_post.save()
+        elif action_type == 'reject':
+            job_post.status = 'fix'
+            job_post.is_active = False
+            job_post.verified_by = request.user
+            job_post.save()
+        else:
+            return Response(
+                {'error': 'Invalid action'},
+                status=status.HTTP_400_BAD_REQUEST
             )
-        elif action == 'reject':
-            job_request.status = 'rejected'
-            job_request.save()
-        
-        return Response({'status': job_request.status})
-    
 
-
-class JobPostViewSet(viewsets.ModelViewSet):
-    queryset = JobPost.objects.filter(is_active=True)
-    serializer_class = JobPostSerializer
-    permission_classes = [permissions.AllowAny]
-
-    def update(self, request, *args, **kwargs):
-        try:
-            instance = self.get_object()
-            serializer = self.get_serializer(instance, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'status': job_post.status})
 
 class ApplicantViewSet(viewsets.ModelViewSet):
     queryset = Applicant.objects.all()
@@ -106,65 +67,26 @@ class ApplicantViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_authenticated and user.user_type == 'human_resources':
+        if user.is_authenticated and user.user_type == 'admin':
             return Applicant.objects.all()
         return Applicant.objects.none()
 
-class ApplicantCreateView(generics.CreateAPIView):
-    queryset = Applicant.objects.all()
-    serializer_class = ApplicantSerializer
-    permission_classes = [permissions.AllowAny]
-    parser_classes = (MultiPartParser, FormParser)
-
-    def perform_create(self, serializer):
-        try:
-            # Get job post
-            job_post_id = self.request.data.get('job_post')
-            job_post = JobPost.objects.get(id=job_post_id)
-            
-            # Save applicant with required fields
-            applicant = serializer.save(
-                job_post=job_post,
-                status='pending'
-            )
-
-            # Create notification for HR users
-            hr_users = get_user_model().objects.filter(user_type='human_resources')
-            for hr_user in hr_users:
-                Notification.objects.create(
-                    recipient=hr_user,
-                    notification_type='application',
-                    title='New Application',
-                    message=f'New application received from {applicant.first_name} {applicant.last_name}',
-                    link=f'/admin/hr/dashboard/applicants/{applicant.id}'
-                )
-            
-            return applicant
-                
-        except Exception as e:
-            logger.error(f"Error creating applicant: {str(e)}")
-            raise serializers.ValidationError(f"Failed to create application: {str(e)}")
 
 class HRDashboardStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
-        pending_requests_count = JobRequest.objects.filter(status='pending').count()
         active_jobs_count = JobPost.objects.filter(is_active=True).count()
         new_applications_count = Applicant.objects.filter(status='pending').count()
 
         stats = {
-            'pendingRequests': pending_requests_count,
             'activeJobs': active_jobs_count,
             'newApplications': new_applications_count
         }
 
         return Response(stats)
 
-class JobRequestDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = JobRequest.objects.all()
-    serializer_class = JobRequestSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
 
 class JobPostDetailView(generics.RetrieveAPIView):
     queryset = JobPost.objects.all()
@@ -194,7 +116,6 @@ class AnalyticsStatsView(APIView):
         try:
             total_applications = Applicant.objects.count()
             total_job_posts = JobPost.objects.count()
-            total_requests = JobRequest.objects.count()
             total_hires = Applicant.objects.filter(status='hired').count()
             applications_per_job = JobPost.objects.annotate(
                 applications=Count('applicant')
@@ -264,7 +185,6 @@ class AnalyticsStatsView(APIView):
                 # ... existing stats remain unchanged ...
                 'applicationsPerDay': list(applications_per_day),
                 'jobPostsPerDay': list(job_posts_per_day),
-                'totalRequests': total_requests,
             })
         
 

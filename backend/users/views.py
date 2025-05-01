@@ -1,8 +1,8 @@
 from .serializers import *
-from .models import Notification
+from .models import *
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.response import Response
-from rest_framework import status, permissions, generics
+from rest_framework import status, permissions, generics, viewsets
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.generics import GenericAPIView, RetrieveAPIView
@@ -10,6 +10,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.exceptions import ValidationError
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 from .models import OTPVerification, PhoneVerification, CustomUser
 from django.core.mail import send_mail
@@ -365,3 +366,43 @@ class NotificationMarkAllReadView(APIView):
     def post(self, request):
         Notification.objects.filter(recipient=request.user).update(is_read=True)
         return Response(status=status.HTTP_200_OK)
+    
+class CompanyViewSet(viewsets.ModelViewSet):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
+    def register(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        company = serializer.save(is_verified=False)
+        return Response(self.get_serializer(company).data, status=status.HTTP_201_CREATED)
+
+class ApplicantViewSet(viewsets.ModelViewSet):
+    queryset = Applicant.objects.all()
+    serializer_class = ApplicantSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
+    def register(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        applicant = serializer.save()
+        return Response(self.get_serializer(applicant).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def add_education(self, request, pk=None):
+        applicant = self.get_object()
+        serializer = ApplicantEducationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(applicant=applicant)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def add_experience(self, request, pk=None):
+        applicant = self.get_object()
+        serializer = ApplicantExperienceSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(applicant=applicant)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

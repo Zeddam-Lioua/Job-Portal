@@ -1,12 +1,9 @@
 from django.db import models
-from users.models import CustomUser
+from users.models import Applicant, Company, CustomUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.exceptions import ValidationError
 
-class JobRequest(models.Model):
-    # Stores job requests created by District Managers
-    field = models.CharField(max_length=100, verbose_name="Job Function", help_text="Enter the job function")
-    required_employees = models.IntegerField(validators=[MinValueValidator(1)], verbose_name="Required Employees", help_text="Enter the number of employees needed")
+class JobPost(models.Model):
     EXPERIENCE_LEVEL_CHOICES = (
         ('indifferent', 'Indifferent'),
         ('None', 'None'),
@@ -18,7 +15,6 @@ class JobRequest(models.Model):
         ('5-10 years', '5-10 years'),
         ('More than 10 years', 'More than 10 years'),
     )
-    experience_level = models.CharField(max_length=50, choices=EXPERIENCE_LEVEL_CHOICES, verbose_name="Experience Level", help_text="Select the required experience level")
     EDUCATION_LEVEL_CHOICES = (
         ('indifferent', 'Indifferent'), 
         ('high_school', 'High School'),
@@ -30,37 +26,11 @@ class JobRequest(models.Model):
         ('masters', "Master's Degree"),
         ('phd', 'Ph.D.'),
     )
-    education_level = models.CharField(max_length=50, choices=EDUCATION_LEVEL_CHOICES, verbose_name="Education Level", help_text="Select the required education level")
     WORKPLACE_CHOICES = (
         ('on_site', 'On Site'),
         ('hybrid', 'Hybrid'),
         ('remote', 'Remote'),
     )
-    workplace = models.CharField(max_length=50, choices=WORKPLACE_CHOICES, verbose_name="Workplace", help_text="Select the workplace type")
-    created_at = models.DateTimeField(auto_now_add=True)
-    STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected')
-    )
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    district_manager = models.ForeignKey(
-        CustomUser, 
-        on_delete=models.CASCADE,
-        limit_choices_to={'user_type': 'district_manager'}
-    )
-
-    def __str__(self):
-        return self.field
-
-class JobPost(models.Model):
-    # Stores approved job posts created by HR
-    job_request = models.OneToOneField(JobRequest, on_delete=models.CASCADE)
-    field = models.CharField(max_length=100)
-    required_employees = models.IntegerField(validators=[MinValueValidator(1)])
-    experience_level = models.CharField(max_length=50, choices=JobRequest.EXPERIENCE_LEVEL_CHOICES)
-    education_level = models.CharField(max_length=50, choices=JobRequest.EDUCATION_LEVEL_CHOICES)
-    workplace = models.CharField(max_length=50, choices=JobRequest.WORKPLACE_CHOICES)
     CONTRACT_TYPE_CHOICES = (
         ('indifferent', 'Indifferent'),
         ('permanent', 'Permanent'),
@@ -71,56 +41,41 @@ class JobPost(models.Model):
         ('part_time', 'Part-time'),
         ('freelance', 'Freelance'),
     )
+    STATUS_CHOICES = (
+        ('draft', 'Draft'),
+        ('pending', 'Pending Approval'),
+        ('published', 'Published'),
+        ('fix', 'Needs Fix'),
+        ('closed', 'Closed'),
+    )
+    field = models.CharField(max_length=100)
+    required_employees = models.IntegerField(validators=[MinValueValidator(1)])
+    
+    experience_level = models.CharField(max_length=50, choices=EXPERIENCE_LEVEL_CHOICES)
+    education_level = models.CharField(max_length=50, choices=EDUCATION_LEVEL_CHOICES)
+    workplace = models.CharField(max_length=50, choices=WORKPLACE_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     contract_type = models.CharField(max_length=50, choices=CONTRACT_TYPE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    human_resources = models.ForeignKey(
-        CustomUser,
+    company = models.ForeignKey(
+        Company,
         on_delete=models.CASCADE,
-        limit_choices_to={'user_type': 'human_resources'}
+        related_name='job_posts'
+    )
+    verified_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        limit_choices_to={'user_type': 'admin'},
+        related_name='verified_job_posts'
     )
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.field
 
-class Applicant(models.Model):
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=254)
-    phone = models.CharField(max_length=10, blank=True, null=True)
-    job_post = models.ForeignKey(JobPost, on_delete=models.CASCADE)
-    resume_file = models.FileField(upload_to='resumes/')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    STATUS_CHOICES = [
-        ('pending', 'Pending'), 
-        ('candidate', 'Candidate'),
-        ('super_candidate', 'Super Candidate'),
-        ('hired', 'Hired'), 
-        ('rejected', 'Rejected'), 
-        ('contacted', 'Contacted'),
-    ]
-    
-    status = models.CharField(
-        max_length=20,
-        choices=STATUS_CHOICES,
-        default='pending'
-    )
-    hired_date = models.DateTimeField(null=True, blank=True)
-
-    class Meta:
-        ordering = ['-created_at']
-
-    def __str__(self):
-        return f"{self.first_name} {self.last_name}"
-
-    def get_full_name(self):
-        return f"{self.first_name} {self.last_name}"
-
-    def validate_pdf(file):
-        if not file.name.endswith('.pdf'):
-            raise ValidationError('Invalid file type. Only PDF files are allowed.')
 
 class PerformanceEvaluation(models.Model):
     applicant = models.ForeignKey(
